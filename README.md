@@ -10,6 +10,8 @@
 ![](https://img.icons8.com/color/48/000000/graphql.png)
 ![](https://img.icons8.com/color/48/000000/react-native.png)
 ![](https://img.icons8.com/color/48/000000/redux.png)
+![](https://img.icons8.com/color/48/000000/amazon-web-services.png)
+![](https://img.icons8.com/color/48/000000/cloudflare.png)
 ![](https://img.icons8.com/color/48/000000/ethereum.png)
 
 
