@@ -1,4 +1,4 @@
- # Hi there, I'm Adam 👋
+ # Hi, I'm Adam 👋
 
 [![Website](https://img.shields.io/website?label=adamserrorlog.com&style=for-the-badge&url=https%3A%2F%2Fadamserrorlog.com)][website]
 
