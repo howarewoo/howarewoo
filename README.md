@@ -12,6 +12,7 @@
 ![](https://img.icons8.com/color/48/000000/react-native.png)
 ![](https://img.icons8.com/color/48/000000/redux.png)
 ![](https://cdn.icon-icons.com/icons2/2407/PNG/48/aws_icon_146074.png)
+![](https://img.icons8.com/color/48/000000/firebase.png)
 ![](https://img.icons8.com/color/48/000000/ethereum.png)
 ![](https://img.icons8.com/color/48/000000/cloudflare.png)
 
