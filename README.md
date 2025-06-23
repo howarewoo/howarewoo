@@ -1,22 +1,37 @@
- # Hi, I'm Adam 👋
+# Hi, I'm Adam 👋
+
+I'm a Software Developer, currently working on Generative AI at Meta. I have a love for building innovative solutions, and I'm always looking to learn new things and collaborate with others.
+
+## 🚀 Current Projects</h2>
+
+- [**Rec Ladder Sports**](https://recladdersports.com) - A platform for recreational sports leagues.
+
+### Connect with me:
+
+<p align="left">
+  <a href="https://linkedin.com/in/adam-woo-11733ba4/" target="_blank">
+    <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/linkedin/default.svg" width="52" height="40" alt="linkedin logo"  />
+  </a>
+</p>
 
 ### Languages and Tools:
 
-![](https://img.icons8.com/color/48/000000/typescript.png)
-![](https://img.icons8.com/color/48/000000/python--v1.png)
-![](https://cdn.icon-icons.com/icons2/2107/PNG/48/file_type_light_solidity_icon_130436.png)
-![](https://cdn.icon-icons.com/icons2/2107/PNG/48/file_type_node_icon_130301.png)
-![](https://img.icons8.com/color/48/000000/graphql.png)
-![](https://img.icons8.com/color/48/000000/react-native.png)
-![](https://img.icons8.com/color/48/000000/redux.png)
-![](https://cdn.icon-icons.com/icons2/2407/PNG/48/aws_icon_146074.png)
-![](https://img.icons8.com/color/48/000000/firebase.png)
-![](https://img.icons8.com/color/48/000000/ethereum.png)
-![](https://img.icons8.com/color/48/000000/cloudflare.png)
+<p align="left">
+    <a href="https://nextjs.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original-wordmark.svg" alt="nextjs" width="40" height="40"/> </a>
+    <a href="https://reactjs.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original-wordmark.svg" alt="react" width="40" height="40"/> </a>
+    <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" alt="typescript" width="40" height="40"/> </a>
+    <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tailwindcss/tailwindcss-original-wordmark.svg" alt="tailwindcss" width="40" height="40"/> </a>
+    <a href="https://ui.shadcn.com/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/139895814?s=40&v=4" alt="shadcn-ui" width="40" height="40"/> </a>
+    <a href="https://supabase.io/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/supabase/supabase-original-wordmark.svg" alt="supabase" width="40" height="40"/> </a>
+    <a href="https://vercel.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/vercel/vercel-original-wordmark.svg" alt="vercel" width="40" height="40"/> </a>
+    <a href="https://www.postgresql.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original-wordmark.svg" alt="postgresql" width="40" height="40"/> </a>
+    <a href="https://nodejs.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nodejs/nodejs-original-wordmark.svg" alt="nodejs" width="40" height="40"/> </a>
+    <a href="https://www.docker.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="40" height="40"/> </a>
+</p>
 
+### GitHub Stats:
 
-[website]: https://adamserrorlog.com
-[twitter]: https://twitter.com/
-[youtube]: https://youtube.com/
-[instagram]: https://instagram.com/
-[linkedin]: https://linkedin.com/in/adam-woo-11733ba4/
+<p align="center">
+  <img src="https://github-readme-stats.vercel.app/api?username=howarewoo&show_icons=true&theme=radical" alt="Adam's GitHub stats" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=howarewoo&layout=compact&theme=radical" alt="Top Langs" />
+</p>
