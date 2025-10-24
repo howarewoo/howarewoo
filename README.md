@@ -28,22 +28,3 @@ I'm a Software Developer, currently working on Generative AI at Meta. I have a l
     <a href="https://nodejs.org/" target="_blank"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" alt="nodejs" width="40" height="40" style="background-color:white; border-radius:10px; padding: 2px; margin-right: 8px;"/></a>
     <a href="https://www.docker.com/" target="_blank"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="docker" width="40" height="40" style="background-color:white; border-radius:10px; padding: 2px; margin-right: 8px;"/></a>
 </p>
-
-### GitHub Stats:
-
-<p align="center">
-  <a href="https://github.com/howarewoo" target="_blank">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=howarewoo&show_icons=true&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats.vercel.app/api?username=howarewoo&show_icons=true&theme=default" />
-      <img alt="Adam's GitHub stats" src="https://github-readme-stats.vercel.app/api?username=howarewoo&show_icons=true&theme=default" />
-    </picture>
-  </a>
-  <a href="https://github.com/howarewoo" target="_blank">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api/top-langs/?username=howarewoo&layout=compact&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats.vercel.app/api/top-langs/?username=howarewoo&layout=compact&theme=default" />
-      <img alt="Top Langs" src="https://github-readme-stats.vercel.app/api/top-langs/?username=howarewoo&layout=compact&theme=default" />
-    </picture>
-  </a>
-</p>
