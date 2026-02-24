@@ -1,6 +1,6 @@
 # Hi, I'm Adam 👋
 
-I'm a Software Developer, currently working on Generative AI at Meta. I have a love for building innovative solutions, and I'm always looking to learn new things and collaborate with others.
+I'm a Software Developer, currently working at Instagram. I have a love for building innovative solutions, and I'm always looking to learn new things and collaborate with others.
 
 ## 🚀 Current Projects</h2>
 
