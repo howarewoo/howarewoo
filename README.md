@@ -5,6 +5,7 @@ I'm a Software Developer, currently working on Generative AI at Meta. I have a l
 ## 🚀 Current Projects</h2>
 
 - <a href="https://recladdersports.com" target="_blank"><strong>Rec Ladder Sports</strong></a> - A platform for recreational sports leagues.
+- <a href="https://github.com/howarewoo/woo-stack" target="_blank"><strong>Woo Stack</strong></a> - A monorepo template to ship web, mobile, and API from a single codebase.
 
 ### Connect with me:
 
