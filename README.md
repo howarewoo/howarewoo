@@ -1,11 +1,11 @@
 # Hi, I'm Adam 👋
 
-I'm the technical co-founder of <a href="https://triosens.io" target="_blank">TrioSens</a>. I was formerly a Senior Engineer at Meta Superintelligence Lab and Instagram.
+Technical co-founder at <a href="https://triosens.io" target="_blank">TrioSens</a>. Previously engineer at Meta Superintelligence Lab and Instagram.
 
 ## 🚀 Current Projects
 
-- <a href="https://github.com/howarewoo/woo-stack" target="_blank"><strong>Woo Stack</strong></a> - A monorepo template to ship web, mobile, and API from a single codebase.
-- <a href="https://github.com/howarewoo/woo-review" target="_blank"><strong>Woo Review</strong></a> - A portable AI skill and GitHub Action for parallel PR review swarms across Anthropic, OpenAI, Google, and OpenRouter.
+- <a href="https://github.com/howarewoo/woo-stack" target="_blank"><strong>Woo Stack</strong></a>: tells AI agents how to start web, mobile, and API projects on current framework versions. Spec, not a boilerplate.
+- <a href="https://github.com/howarewoo/woo-review" target="_blank"><strong>Woo Review</strong></a>: portable AI skill and GitHub Action. Runs PR reviews in parallel across Anthropic, OpenAI, Google, and OpenRouter.
 
 ### Connect with me:
 
