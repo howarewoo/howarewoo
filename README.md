@@ -14,14 +14,3 @@ Technical co-founder at <a href="https://triosens.io" target="_blank">TrioSens</
     <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/linkedin/default.svg" width="52" height="40" alt="linkedin logo"  />
   </a>
 </p>
-
-### 📊 GitHub Stats
-
-<p align="left">
-  <a href="https://github.com/howarewoo">
-    <img src="https://github-readme-stats.vercel.app/api?username=howarewoo&show_icons=true&hide_border=true&count_private=true" alt="Adam's GitHub stats" />
-  </a>
-  <a href="https://github.com/howarewoo">
-    <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=howarewoo&layout=compact&hide_border=true" alt="Top languages" />
-  </a>
-</p>
