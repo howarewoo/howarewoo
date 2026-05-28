@@ -1,7 +1,8 @@
+import type { Metadata } from "next";
 import { ProjectGrid } from "@/components/project-grid";
 import { projects } from "@/lib/projects";
 
-export const metadata = { title: "Projects — Adam Woo" };
+export const metadata: Metadata = { title: "Projects — Adam Woo" };
 
 export default function ProjectsPage() {
   return (
