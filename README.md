@@ -4,8 +4,7 @@ Technical co-founder at <a href="https://triosens.io" target="_blank">TrioSens</
 
 ## 🚀 Current Projects
 
-- <a href="https://github.com/howarewoo/woo-stack" target="_blank"><strong>Woo Stack</strong></a>: tells AI agents how to start web, mobile, and API projects on current framework versions. Spec, not a boilerplate.
-- <a href="https://github.com/howarewoo/woo-review" target="_blank"><strong>Woo Review</strong></a>: portable AI skill and GitHub Action. Runs PR reviews in parallel across Anthropic, OpenAI, Google, and OpenRouter.
+- <a href="https://github.com/howarewoo/woostack" target="_blank"><strong>woostack</strong></a>: an installable collection of skills that encode my software-development process for AI agents — bootstrap, build, review, iterate — across new and existing codebases. Also runs PR review swarms in CI as a GitHub Action.
 
 ### Connect with me:
 
