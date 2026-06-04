@@ -1,6 +1,6 @@
 # Hi, I'm Adam 👋
 
-Technical co-founder at <a href="https://triosens.io" target="_blank">TrioSens</a>. Previously engineer at Meta Superintelligence Lab and Instagram.
+Technical co-founder at <a href="https://triosens.io" target="_blank">TrioSens</a>. Previously senior engineer at Meta Superintelligence Lab and Instagram.
 
 ## 🚀 Current Projects
 
