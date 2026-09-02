@@ -6,9 +6,12 @@ Former senior engineer at Meta Superintelligence Lab and Instagram.
 
 - <a href="https://triosens.io" target="_blank"><strong>TrioSens</strong></a>: AI brand-visibility analytics across ChatGPT, Gemini, Claude, and other AI platforms.
 - <a href="https://github.com/howarewoo/woostack" target="_blank"><strong>woostack</strong></a>: an installable collection of skills that encode my software-development process for AI agents — bootstrap, build, review, iterate — across new and existing codebases. Also runs PR review swarms in CI as a GitHub Action.
+
+## 🗃️ Past Projects
+
 - <a href="https://github.com/howarewoo/omp-remote" target="_blank"><strong>OMP Remote</strong></a>: an archived, phone-first PWA for supervising multiple Oh My Pi coding sessions from a private Tailnet.
 
-### Connect with me:
+## Connect with me:
 
 <p align="left">
   <a href="https://linkedin.com/in/adam-woo-11733ba4/" target="_blank">
