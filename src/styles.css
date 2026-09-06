@@ -87,6 +87,59 @@ h1:focus {
   background: var(--paper);
   box-shadow: 3px 9px 20px #38271140;
 }
+.laptop-desktop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.desktop-project {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 144px;
+  height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  visibility: hidden;
+  transform-origin: 0 0;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.desktop-project .desktop-app-icon {
+  width: 74px;
+  height: 74px;
+  padding: 9px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: #fff;
+  filter: drop-shadow(0 3px 3px #142c4d66);
+}
+.desktop-project span {
+  padding: 2px 7px 3px;
+  border-radius: 4px;
+  color: white;
+  background: #102033b8;
+  font:
+    600 20px/1.2 -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  text-shadow: 0 1px 2px #0009;
+}
+.desktop-project:hover span,
+.desktop-project:focus-visible span {
+  background: #175cb9;
+}
+.desktop-project:focus-visible {
+  outline: 2px solid white;
+  outline-offset: -2px;
+  border-radius: 8px;
+  background: #175cb933;
+}
 .laptop-return {
   border: 0;
   color: #3d3526;
@@ -105,46 +158,31 @@ h1:focus {
 .laptop-return:hover {
   background: #f5e6c6;
 }
-.laptop-focused .desk-index {
-  visibility: hidden;
-  pointer-events: none;
-}
-.book-reading .desk-index,
 .book-reading .skip-link {
   visibility: hidden;
   pointer-events: none;
 }
-.desk-index {
+.tabletop:focus {
+  outline: none;
+}
+.keyboard-navigation:focus-within {
   position: fixed;
-  bottom: 20px;
-  left: 24px;
-  z-index: 5;
-  min-width: 105px;
-  background: #ede0bd;
-  color: #3d3526;
+  left: 16px;
+  bottom: 16px;
+  z-index: 20;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 12px 20px;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: var(--paper);
   box-shadow: 2px 4px 8px #38271140;
-  transform: rotate(-2deg);
-  font-size: 12px;
 }
-.desk-index summary {
-  cursor: pointer;
-  padding: 12px 16px;
-}
-.desk-index nav {
-  display: flex;
-  flex-direction: column;
-  padding: 0 16px 12px;
-  gap: 4px;
-}
-.desk-index a {
+.keyboard-navigation a {
   display: block;
-  padding: 8px 0;
-  text-decoration: none;
-}
-.desk-index a:hover,
-.desk-index a.active {
-  color: var(--rust);
-  text-decoration: underline;
+  padding: 10px 0;
 }
 .paper-page {
   position: relative;
@@ -228,11 +266,6 @@ html {
 @media (max-width: 650px) {
   .desk-world {
     background-size: auto 100%;
-  }
-  .desk-index {
-    left: 12px;
-    bottom: 12px;
-    font-size: 11px;
   }
   .laptop-return {
     font-size: 10px;

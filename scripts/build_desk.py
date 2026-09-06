@@ -589,9 +589,9 @@ bezel = rounded_panel('MacBook thin continuous display surround', 10.68, 6.73, .
                       screen_center-front*.024, macbook_bezel, .004)
 bezel.rotation_euler.x = lid_angle
 # Half-inch lower bezel, converted using the 31.26 cm chassis width.
-# Keep the upper display edge and notch fixed while raising the lower edge.
+# Match the top to the side inset while preserving the thicker lower bezel.
 bottom_bezel = 1.27 * 10.8 / 31.26
-top_bezel = (6.73 - 6.62) / 2
+top_bezel = (10.68 - 10.42) / 2
 display_height = 6.73 - top_bezel - bottom_bezel
 display_center = screen_center + up * ((bottom_bezel - top_bezel) / 2)
 display = rounded_panel('MacBook rounded 3024 by 1964 display', 10.42, display_height, .012, .13,

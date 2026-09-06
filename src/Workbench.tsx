@@ -8,6 +8,7 @@ import { useNavigate } from "react-router";
 import Notebook from "./Notebook";
 import LaptopCamera from "./LaptopCamera";
 import MatReset from "./MatReset";
+import LaptopDesktop from "./LaptopDesktop";
 import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
 import PhysicsObject from "./PhysicsObject";
 import { bookSpreads } from "./book-content";
@@ -258,6 +259,7 @@ function Scene({
           rotation={[Math.PI / 2, 0, 0]}
           dispose={null}
         />
+        <LaptopDesktop active={laptopOpen && !cameraMoving} />
       </group>
       <mesh
         name="Tabletop slab"
@@ -457,7 +459,16 @@ export default function Workbench(props: WorkbenchProps) {
       }}
       fallback={
         <p className="scene-message">
-          3D isn’t available on this device. Open the desk index to explore.
+          3D isn’t available on this device. Use keyboard navigation to explore,
+          or visit{" "}
+          <a href="/archive" tabIndex={-1}>
+            the archive
+          </a>{" "}
+          or{" "}
+          <a href="/contact" tabIndex={-1}>
+            contact Adam
+          </a>
+          .
         </p>
       }
     >

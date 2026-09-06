@@ -70,7 +70,10 @@ class SceneBoundary extends Component<
     return this.state.failed ? (
       <div className="scene-message">
         <h2>The workbench couldn’t load.</h2>
-        <p>Open the desk index in the corner to explore every section.</p>
+        <p>
+          Explore the <Link to="/archive">archive</Link> or{" "}
+          <Link to="/contact">get in touch</Link>.
+        </p>
       </div>
     ) : (
       this.props.children
@@ -177,8 +180,8 @@ function Home() {
         role="img"
         aria-label={
           laptopOpen
-            ? "A close-up of the MacBook Pro display. Use Back to the desk or press Escape to return."
-            : "A leather notebook, U.S.-style passport, floppy disk, and sealed envelope on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all four objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are in the desk index."
+            ? "A close-up of the MacBook Pro display with desktop shortcuts for current projects. Use Back to the desk or press Escape to return."
+            : "A leather notebook, U.S.-style passport, floppy disk, and sealed envelope on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all four objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are available through keyboard navigation."
         }
       >
         <SceneBoundary>
@@ -304,7 +307,7 @@ function App() {
     const heading = document.querySelector("h1");
     const focusTarget =
       location.pathname === "/"
-        ? document.querySelector(".desk-index summary")
+        ? document.getElementById("main")
         : location.pathname === "/laptop"
           ? document.querySelector(".laptop-return")
           : heading;
@@ -322,29 +325,27 @@ function App() {
   return (
     <main
       id="main"
+      tabIndex={-1}
       className={`tabletop${bookPageForPath(location.pathname) !== null || location.pathname === "/about" ? " book-reading" : location.pathname === "/laptop" ? " laptop-focused" : location.pathname === "/archive" ? " archive-open" : location.pathname === "/" ? "" : " reading"}`}
     >
       <a href="#main" className="skip-link">
         Skip to content
       </a>
       <Home />
-      <details className="desk-index" key={location.pathname}>
-        <summary>Desk index</summary>
-        <nav aria-label="Desk navigation">
-          <Link to="/">The workbench</Link>
-          {[
-            ["/projects", "Work"],
-            ["/laptop", "MacBook Pro"],
-            ["/about", "About"],
-            ["/archive", "Archive"],
-            ["/contact", "Contact"],
-          ].map(([to, label]) => (
-            <NavLink key={to} to={to}>
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-      </details>
+      <nav className="sr-only keyboard-navigation" aria-label="Site navigation">
+        <Link to="/">The workbench</Link>
+        {[
+          ["/projects", "Work"],
+          ["/laptop", "MacBook Pro"],
+          ["/about", "About"],
+          ["/archive", "Archive"],
+          ["/contact", "Contact"],
+        ].map(([to, label]) => (
+          <NavLink key={to} to={to}>
+            {label}
+          </NavLink>
+        ))}
+      </nav>
       <Routes>
         <Route path="/" element={null} />
         <Route path="/laptop" element={null} />
