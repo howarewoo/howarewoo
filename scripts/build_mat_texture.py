@@ -118,11 +118,23 @@ def build(name, width, height, columns, rows):
             label(str(180-angle), left+(radius-.29)*math.cos(radians),
                   bottom+(radius-.29)*math.sin(radians), small=True, knockout=True)
 
-    # Leave one whole grid cell clear for the runtime reset icon.
+    # Screenprint reset into the mat so interaction state cannot hide the artwork.
     patch_right, patch_bottom = left + cell, top - cell
     draw.rectangle((point(left, top), point(patch_right, patch_bottom)), fill=GREEN)
     line((left, patch_bottom), (patch_right, patch_bottom))
     line((patch_right, patch_bottom), (patch_right, top))
+    def icon_point(x, y):
+        return point(left + x * cell / 512, top - y * cell / 512)
+
+    stroke = max(1, round(19 * cell * scale / 512))
+    arc = [icon_point(256 + 124 * math.cos(a), 256 + 124 * math.sin(a))
+           for a in [-math.pi * .75 + math.pi * 1.67 * i / 180 for i in range(181)]]
+    arrow = [icon_point(x, y) for x, y in [(168, 106), (168, 168), (230, 168)]]
+    for path in (arc, arrow):
+        draw.line(path, fill=INK, width=stroke, joint='curve')
+        for x, y in (path[0], path[-1]):
+            r = stroke / 2
+            draw.ellipse((x-r, y-r, x+r, y+r), fill=INK)
 
     # Four rulers: horizontal values increase left-to-right; vertical bottom-to-top.
     # Subdivisions are eighth-inches, confined to the outer border, not a dense grid.

@@ -16,6 +16,7 @@ import "@fontsource/dm-sans/700.css";
 import "@fontsource/dm-mono/400.css";
 import "./styles.css";
 import { bookSpreads, projects } from "./book-content";
+import Archive from "./Archive";
 const Workbench = lazy(async () => {
   await Promise.all(
     [400, 500, 700].map((weight) =>
@@ -123,7 +124,6 @@ function Home() {
   const [systemReduced, setSystemReduced] = useState(
     () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
-  const [paused, setPaused] = useState(false);
   const [resetGeneration, setResetGeneration] = useState(0);
   const [resetFocused, setResetFocused] = useState(false);
   const [resetAvailable, setResetAvailable] = useState(false);
@@ -147,7 +147,7 @@ function Home() {
         aria-label={
           laptopOpen
             ? "A close-up of the MacBook Pro display. Use Back to the desk or press Escape to return."
-            : "A leather notebook, card, floppy disk, and sealed envelope on a cutting mat and butcher-block desk. Drag to rearrange; click to discover. The reset arrow in the mat’s upper-left grid cell restores all four objects; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are in the desk index."
+            : "A leather notebook, card, floppy disk, and sealed envelope on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all four objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are in the desk index."
         }
       >
         <SceneBoundary>
@@ -157,7 +157,7 @@ function Home() {
             }
           >
             <Workbench
-              reduced={systemReduced || paused}
+              reduced={systemReduced}
               bookOpen={bookOpen}
               laptopOpen={laptopOpen}
               bookPage={bookPage ?? 0}
@@ -221,27 +221,10 @@ function Home() {
         </section>
       )}
       {laptopOpen && (
-        <button
-          className="motion-toggle laptop-return"
-          onClick={() => navigate("/")}
-        >
+        <button className="laptop-return" onClick={() => navigate("/")}>
           Back to the desk
         </button>
       )}
-      <div className="desk-footer">
-        <button
-          className="motion-toggle"
-          onClick={() => setPaused((v) => !v)}
-          aria-pressed={paused || systemReduced}
-          disabled={systemReduced}
-        >
-          {systemReduced
-            ? "Reduced motion enabled"
-            : paused
-              ? "Resume motion"
-              : "Pause motion"}
-        </button>
-      </div>
     </div>
   );
 }
@@ -254,32 +237,6 @@ function Page({ title, children }: { title: string; children: ReactNode }) {
       <h1>{title}</h1>
       {children}
     </article>
-  );
-}
-function Archive() {
-  return (
-    <Page title="Past lives.">
-      <p className="page-lead">
-        Experiments and projects from an earlier chapter.
-      </p>
-      <div className="project-list">
-        {projects
-          .filter((p) => p.slug === "omp-remote")
-          .map((p) => (
-            <article key={p.slug}>
-              <span className="project-type">{p.type}</span>
-              <h2>
-                <Link to={`/projects/${p.slug}`}>
-                  {p.name}
-                  <Arrow />
-                </Link>
-              </h2>
-              <p>{p.description}</p>
-              <External href={p.url}>{p.link}</External>
-            </article>
-          ))}
-      </div>
-    </Page>
   );
 }
 function ProjectDetail() {
@@ -317,7 +274,7 @@ function App() {
   return (
     <main
       id="main"
-      className={`tabletop${bookPageForPath(location.pathname) !== null ? " book-reading" : location.pathname === "/laptop" ? " laptop-focused" : location.pathname === "/" ? "" : " reading"}`}
+      className={`tabletop${bookPageForPath(location.pathname) !== null ? " book-reading" : location.pathname === "/laptop" ? " laptop-focused" : location.pathname === "/archive" ? " archive-open" : location.pathname === "/" ? "" : " reading"}`}
     >
       <a href="#main" className="skip-link">
         Skip to content

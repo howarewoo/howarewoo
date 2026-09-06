@@ -87,25 +87,12 @@ h1:focus {
   background: var(--paper);
   box-shadow: 3px 9px 20px #38271140;
 }
-.desk-footer {
-  position: absolute;
-  bottom: 18px;
-  right: 22px;
-}
-.motion-toggle {
+.laptop-return {
   border: 0;
-  padding: 9px 13px;
   color: #3d3526;
   background: #e9d5aee8;
-  font-size: 11px;
   cursor: pointer;
   box-shadow: 1px 3px 5px #38271130;
-  transform: rotate(1deg);
-}
-.motion-toggle:hover {
-  background: #f5e6c6;
-}
-.laptop-return {
   position: absolute;
   bottom: 20px;
   left: 24px;
@@ -115,11 +102,13 @@ h1:focus {
   font-size: 13px;
   transform: rotate(-2deg);
 }
+.laptop-return:hover {
+  background: #f5e6c6;
+}
 .laptop-focused .desk-index {
   visibility: hidden;
   pointer-events: none;
 }
-.book-reading .desk-footer,
 .book-reading .desk-index,
 .book-reading .skip-link {
   visibility: hidden;
@@ -216,34 +205,6 @@ h1:focus {
   color: var(--rust);
   border-color: var(--rust);
 }
-.project-list {
-  margin-top: 40px;
-}
-.project-list article {
-  padding: 28px 0 35px;
-  border-top: 1px solid #b9c1ac;
-}
-.project-type {
-  font-family: "DM Mono", monospace;
-  font-size: 10px !important;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-}
-.project-list h2 {
-  font-size: 35px;
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  margin: 15px 0;
-}
-.project-list h2 a {
-  display: flex;
-  justify-content: space-between;
-  text-decoration: none;
-  align-items: center;
-}
-.project-list h2 a:hover {
-  color: var(--rust);
-}
 .contact-links {
   display: flex;
   align-items: flex-start;
@@ -273,11 +234,7 @@ html {
     bottom: 12px;
     font-size: 11px;
   }
-  .desk-footer {
-    right: 12px;
-    bottom: 12px;
-  }
-  .motion-toggle {
+  .laptop-return {
     font-size: 10px;
   }
   .paper-page {

@@ -1,0 +1,372 @@
+.archive-open .desk-index {
+  display: none;
+}
+.archive-open .desk-world {
+  pointer-events: none;
+}
+.retro-world {
+  min-height: 100svh;
+  background: #fff;
+  color: #000;
+  font-family: "Times New Roman", Times, serif;
+  padding: 0 24px;
+}
+.retro-world ::selection {
+  background: #000080;
+  color: white;
+}
+.retro-world a {
+  color: #0000ee;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.retro-world a:visited {
+  color: #551a8b;
+}
+.retro-world a:focus-visible {
+  outline: 2px dotted #000080;
+  outline-offset: 3px;
+}
+.retro-site {
+  max-width: 1040px;
+  min-height: 100svh;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 174px minmax(0, 1fr);
+}
+.retro-sidebar {
+  background: #990900;
+  color: white;
+  padding: 38px 16px;
+  text-align: center;
+  font:
+    bold 13px/1.35 Arial,
+    sans-serif;
+}
+.retro-sidebar a,
+.retro-sidebar a:visited {
+  color: white;
+  display: block;
+  padding: 12px 0;
+  text-decoration: none;
+}
+.retro-sidebar a:hover {
+  text-decoration: underline;
+}
+.retro-sidebar a:focus-visible {
+  outline-color: white;
+}
+.retro-sidebar .retro-home,
+.retro-sidebar .retro-eject {
+  display: inline-block;
+  padding: 5px 9px;
+  border: 2px outset #db8e87;
+  margin-bottom: 22px;
+}
+.retro-sidebar hr {
+  border: 0;
+  height: 3px;
+  background: #e6d5c4;
+  box-shadow: 1px 2px #570500;
+  margin: 25px 0;
+}
+.retro-sidebar p {
+  font-size: 12px;
+}
+.retro-disk-label {
+  line-height: 1.8;
+  letter-spacing: 1px;
+}
+.retro-disk-label span {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 2px 7px;
+  background: #fff;
+  color: #780700;
+  font-size: 10px;
+}
+.retro-content {
+  min-width: 0;
+  padding: 0 20px 30px;
+}
+.retro-masthead {
+  border-bottom: 4px ridge #7496a1;
+  padding: 0 0 18px;
+}
+.retro-edition {
+  text-align: right;
+  font:
+    10px/1.8 Arial,
+    sans-serif;
+  letter-spacing: 3px;
+  border-top: 1px solid #999;
+}
+.retro-edition b {
+  background: #990900;
+  color: white;
+  padding: 4px 8px;
+  letter-spacing: 2px;
+}
+.retro-masthead h1 {
+  font-size: clamp(32px, 4vw, 52px);
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -1.5px;
+  text-shadow: 2px 2px #b9b9b9;
+  margin: 28px 0 10px;
+}
+.retro-masthead p {
+  margin: 0;
+  font-size: 17px;
+}
+.retro-feature {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 165px;
+  gap: 15px;
+  margin: 26px 0;
+}
+.retro-feature-main {
+  border-bottom: 4px ridge #7496a1;
+  padding-bottom: 14px;
+}
+.retro-banner {
+  background: linear-gradient(
+    90deg,
+    #dde4e5,
+    #517f91 26%,
+    #7195a3 76%,
+    #e5e9e7
+  );
+  text-align: center;
+  padding: 18px 8px;
+  color: white;
+  font:
+    bold 30px/1.05 Arial,
+    sans-serif;
+  text-shadow: 2px 2px #283e47;
+}
+.retro-feature-main p {
+  text-align: center;
+  font-size: 21px;
+  font-weight: bold;
+  font-style: italic;
+  margin: 12px 0 0;
+}
+.retro-feature-note {
+  border-left: 1px solid #888;
+  padding-left: 14px;
+  font:
+    13px/1.3 Arial,
+    sans-serif;
+}
+.retro-feature-note strong {
+  color: #555;
+  text-shadow: 1px 1px #ccc;
+  font-size: 19px;
+  line-height: 1;
+}
+.retro-feature-note p {
+  margin: 12px 0;
+}
+.retro-section-title {
+  border-bottom: 3px ridge #990900;
+  font-size: 16px;
+  margin: 0 0 14px;
+  line-height: 1;
+}
+.retro-section-title span {
+  display: inline-block;
+  border: 2px outset #aaa;
+  background: #fffbe7;
+  padding: 3px 12px;
+}
+.retro-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  font-size: 18px;
+  line-height: 1.2;
+}
+.retro-columns > div + div {
+  border-left: 1px solid #777;
+  padding-left: 22px;
+}
+.retro-columns h3 {
+  font-size: 20px;
+  margin: 0 0 5px;
+}
+.retro-columns p {
+  margin: 0 0 14px;
+}
+.retro-columns .retro-status {
+  font:
+    bold 11px Arial,
+    sans-serif;
+  letter-spacing: 1px;
+  margin: 12px 0;
+}
+.retro-project,
+.retro-note {
+  border-bottom: 1px solid #333;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+}
+.retro-columns .retro-caution {
+  font-size: 15px;
+  font-style: italic;
+}
+.retro-footer {
+  margin-top: 28px;
+  border-top: 4px ridge #ddd;
+  padding-top: 10px;
+  text-align: center;
+  font-size: 13px;
+}
+.retro-footer p {
+  margin: 10px 0;
+}
+.retro-web-badge {
+  display: inline-block;
+  border: 3px outset #ccc;
+  background: #ddd;
+  color: #111;
+  padding: 3px 7px;
+  font:
+    9px/1.3 Arial,
+    sans-serif;
+  margin-top: 10px;
+}
+::view-transition-old(root) {
+  animation: archive-signal-out 580ms steps(1, end) both;
+}
+::view-transition-new(root) {
+  animation: archive-signal-in 650ms steps(1, end) both;
+}
+@keyframes archive-signal-out {
+  0% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  20% {
+    transform: translateX(-9px) skewX(2deg);
+    filter: saturate(0.3);
+    clip-path: inset(0 0 12% 0);
+  }
+  38% {
+    transform: translateX(13px);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 27%,
+      0 27%,
+      0 42%,
+      100% 42%,
+      100% 80%,
+      0 80%
+    );
+  }
+  62% {
+    transform: translateX(-5px);
+    filter: grayscale(1);
+    clip-path: inset(32% 0 18% 0);
+  }
+  85%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes archive-signal-in {
+  0%,
+  25% {
+    opacity: 0;
+  }
+  26% {
+    opacity: 1;
+    clip-path: inset(28% 0 47% 0);
+    transform: translateX(12px);
+  }
+  48% {
+    clip-path: inset(60% 0 10% 0);
+    transform: translateX(-7px);
+  }
+  70% {
+    clip-path: inset(0);
+    transform: translateX(3px);
+  }
+  85%,
+  100% {
+    opacity: 1;
+    clip-path: inset(0);
+    transform: none;
+  }
+}
+@media (max-width: 650px) {
+  .retro-world {
+    padding: 0;
+  }
+  .retro-site {
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+  .retro-sidebar {
+    padding: 24px 9px;
+    font-size: 11px;
+  }
+  .retro-sidebar p {
+    font-size: 10px;
+  }
+  .retro-content {
+    padding: 0 12px 24px;
+  }
+  .retro-edition {
+    font-size: 8px;
+    letter-spacing: 0;
+  }
+  .retro-edition b {
+    letter-spacing: 0;
+  }
+  .retro-masthead h1 {
+    font-size: 34px;
+    margin-top: 22px;
+  }
+  .retro-masthead p {
+    font-size: 15px;
+  }
+  .retro-feature {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin: 18px 0;
+  }
+  .retro-banner {
+    font-size: 24px;
+  }
+  .retro-feature-main p {
+    font-size: 18px;
+  }
+  .retro-feature-note {
+    border-left: 0;
+    border-bottom: 1px solid #888;
+    padding: 0 0 12px;
+  }
+  .retro-feature-note strong {
+    font-size: 16px;
+  }
+  .retro-feature-note strong br {
+    display: none;
+  }
+  .retro-columns {
+    grid-template-columns: 1fr;
+    gap: 0;
+    font-size: 17px;
+  }
+  .retro-columns > div + div {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

@@ -271,48 +271,12 @@ macbook_speaker.node_tree.links.new(
     speaker_texture.outputs['Color'], speaker_nodes.get('Principled BSDF').inputs['Base Color']
 )
 
-# Original monochrome sculptural wallpaper: broad rounded bands with directional
-# surface shading, not a blurry glow. This is not a texture from the paid model.
-wall_h, wall_w = 660, 1024
-wall_y, wall_x = np.mgrid[0:1:complex(wall_h), 0:1.54:complex(wall_w)]
-wallpaper = np.ones((wall_h, wall_w, 4), dtype=np.float32)
-shade = np.full((wall_h, wall_w), .014, dtype=np.float32)
-path = [(-.2, .84), (.78, .84)]
-def wallpaper_arc(cx, cy, radius, start, end):
-    for angle in np.linspace(math.radians(start), math.radians(end), 25)[1:]:
-        path.append((cx+radius*math.cos(angle), cy+radius*math.sin(angle)))
-wallpaper_arc(.78, .68, .16, 90, -90)
-path.append((.40, .52))
-wallpaper_arc(.40, .34, .18, 90, 270)
-path.append((1.06, .16))
-wallpaper_arc(1.06, .32, .16, 270, 360)
-path.append((1.22, .88))
-wallpaper_arc(1.39, .88, .17, 180, 0)
-path.append((1.56, .40))
-wallpaper_arc(1.72, .40, .16, 180, 270)
-path.append((1.9, .24))
-nearest = np.full_like(wall_x, np.inf)
-dx = np.zeros_like(wall_x); dy = np.zeros_like(wall_y)
-for (ax, ay), (bx, by) in zip(path, path[1:]):
-    vx, vy = bx-ax, by-ay
-    t = np.clip(((wall_x-ax)*vx+(wall_y-ay)*vy)/(vx*vx+vy*vy), 0, 1)
-    ex, ey = wall_x-(ax+t*vx), wall_y-(ay+t*vy)
-    distance = ex*ex+ey*ey
-    closer = distance < nearest
-    dx[closer] = ex[closer]; dy[closer] = ey[closer]
-    nearest = np.minimum(nearest, distance)
-radial = np.sqrt(nearest) / .097
-normal_z = np.sqrt(np.maximum(1-radial*radial, 0))
-light = np.clip(normal_z*.28 + dy/.097*.72 - dx/.097*.38, 0, 1)
-band = .018 + .45*light**2 + .045*np.exp(-((radial-.975)/.025)**2)
-mask = np.clip((1-radial)*180, 0, 1)
-shade = shade*(1-mask) + band*mask
-wallpaper[:, :, :3] = shade[:, :, None] * np.array((.94, .96, 1.0))
-wallpaper_image = bpy.data.images.new('MacBook original graphite ribbon wallpaper', width=wall_w, height=wall_h)
+# User-selected wallpaper, center-cropped to the 3024:1964 display aspect ratio.
+# Source: https://cdn.wallpapersafari.com/48/89/xJPlWu.jpg
+wallpaper_image = bpy.data.images.load(str(SOURCE / 'textures/macbook-wallpaper.jpg'))
 wallpaper_image.colorspace_settings.name = 'sRGB'
-wallpaper_image.pixels.foreach_set(wallpaper.ravel())
 wallpaper_image.pack()
-macbook_screen = material('MacBook emissive graphite display', '090a0d', .30, specular=.26)
+macbook_screen = material('MacBook emissive wallpaper display', 'ffffff', .30, specular=.26)
 screen_nodes = macbook_screen.node_tree.nodes
 screen_shader = screen_nodes.get('Principled BSDF')
 screen_texture = screen_nodes.new('ShaderNodeTexImage')
@@ -385,8 +349,8 @@ def surface_uv(obj, width, height, vertical_axis):
     obj['preserve_uv'] = True
 
 
-def rounded_panel(name, width, height, depth, radius, pos, mat, edge=.004):
-    """Independent plan-view corner radius and edge roll; thin cubes clamp bevels."""
+def rounded_panel(name, width, height, depth, radius, pos, mat, edge=.004, square_bottom=False):
+    """Independent corner radius and edge roll, optionally square at the bottom."""
     edge = min(edge, depth / 3, radius / 3)
     profiles = [(-depth/2, edge), (-depth/2+edge*.293, edge*.293),
                 (-depth/2+edge, 0), (depth/2-edge, 0),
@@ -398,10 +362,13 @@ def rounded_panel(name, width, height, depth, radius, pos, mat, edge=.004):
                               (-width/2+radius, height/2-radius, 90),
                               (-width/2+radius, -height/2+radius, 180),
                               (width/2-radius, -height/2+radius, 270)]:
+            if square_bottom and cy < 0:
+                vertices.append((math.copysign(width/2-inset, cx), -height/2+inset, z))
+                continue
             for step in range(9):
                 angle = math.radians(start+step*90/8)
                 vertices.append((cx+r*math.cos(angle), cy+r*math.sin(angle), z))
-    count = 36
+    count = 20 if square_bottom else 36
     faces = [tuple(reversed(range(count)))]
     for ring in range(len(profiles)-1):
         for i in range(count):
@@ -596,9 +563,15 @@ lid.rotation_euler.x = lid_angle
 bezel = rounded_panel('MacBook thin continuous display surround', 10.68, 6.73, .024, .18,
                       screen_center-front*.024, macbook_bezel, .004)
 bezel.rotation_euler.x = lid_angle
-display = rounded_panel('MacBook rounded 3024 by 1964 display', 10.42, 6.62, .012, .13,
-                        screen_center-front*.006, macbook_screen, .001)
-surface_uv(display, 10.42, 6.62, 1)
+# Half-inch lower bezel, converted using the 31.26 cm chassis width.
+# Keep the upper display edge and notch fixed while raising the lower edge.
+bottom_bezel = 1.27 * 10.8 / 31.26
+top_bezel = (6.73 - 6.62) / 2
+display_height = 6.73 - top_bezel - bottom_bezel
+display_center = screen_center + up * ((bottom_bezel - top_bezel) / 2)
+display = rounded_panel('MacBook rounded 3024 by 1964 display', 10.42, display_height, .012, .13,
+                        display_center-front*.006, macbook_screen, .001, square_bottom=True)
+surface_uv(display, 10.42, display_height, 1)
 display.rotation_euler.x = lid_angle
 notch_center = screen_center + up*3.225 + front*.005
 camera_notch = rounded_panel('MacBook small rounded camera notch', 1.05, .20, .012, .045,
