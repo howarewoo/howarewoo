@@ -233,12 +233,6 @@ micro_surface(plastic, (4.0, 4.0), .022, .72, .035, 'eggshell', 47)
 plastic_edge = material('ABS recessed edge', '1e2422', .79, specular=.30)
 metal = material('Brushed nickel', 'aeb4b2', .36, .9, .46)
 micro_surface(metal, (1.4, 4.8), .014, .36, .045, 'brushed', 53)
-kraft = material('Natural fibrous kraft paper', 'b8a383', .94, specular=.25)
-micro_surface(kraft, (2.6, 5.0), .025, .94, .025, 'fiber', 59)
-kraft_fold = material('Kraft folded edge', 'a99577', .96, specular=.23)
-micro_surface(kraft_fold, (2.6, 5.0), .020, .96, .015, 'fiber', 59)
-wax = material('Restrained oxblood sealing wax', '683e33', .58, specular=.40)
-micro_surface(wax, (2.2, 2.2), .012, .58, .035, 'eggshell', 61)
 mat_rubber = material('Matte self healing vinyl', '0c775d', .86, specular=.29)
 micro_surface(mat_rubber, (2.0, 2.0), .015, .86, .025, 'eggshell', 67)
 
@@ -426,7 +420,7 @@ def finish(name):
     active.clear()
 
 
-# Leather-bound notebook body: back cover, layered signatures, spine, and bookmark.
+# Leather-bound notebook body; the fabric bookmark is simulated in the web scene.
 box('Back cover', (3.72, 4.92, .09), (0, 0, .06), leather, .03)
 box('Bound paper block', (3.55, 4.72, .25), (.035, 0, .22), paper, .018)
 for i in range(16):
@@ -434,7 +428,6 @@ for i in range(16):
     line('Individual page edge', [(1.813, -2.30, z), (1.813, 2.30, z)], .0018, paper_edge)
     line('Bottom page edge', [(-1.68, -2.365, z), (1.8, -2.365, z)], .0018, paper_edge)
 box('Spine', (.18, 4.91, .43), (-1.77, 0, .24), leather, .07)
-box('Ribbon bookmark', (.12, .46, .012), (.8, -2.58, .07), foil, .005)
 finish('notebook')
 
 # Independently animated front cover, authored in the notebook's original coordinates.
@@ -489,19 +482,12 @@ box('Inset label bed', (2.21, 1.47, .014), (0, -.47, .188), plastic_edge, .025)
 box('Aged adhesive label', (2.12, 1.38, .008), (0, -.46, .202), paper, .002)
 finish('disk')
 
-# Envelope built from overlapping folds, with a slightly irregular wax seal.
-box('Envelope paper body', (3.70, 2.60, .027), (0, 0, .025), kraft, .006)
-polygon('Left folded wing', [(-1.85, -1.3, .044), (-.15, .08, .052), (-1.85, 1.3, .044)], kraft_fold)
-polygon('Right folded wing', [(1.85, -1.3, .044), (1.85, 1.3, .044), (.15, .08, .052)], kraft_fold)
-polygon('Bottom folded pocket', [(-1.85, -1.3, .048), (1.85, -1.3, .048), (.0, .20, .063)], kraft)
-polygon('Triangular closure flap', [(-1.85, 1.3, .051), (0, -.20, .094), (1.85, 1.3, .051)], kraft)
-line('Flap paper thickness', [(-1.85, 1.3, .054), (0, -.20, .095), (1.85, 1.3, .054)], .008, kraft_fold)
-seal = cylinder('Hand pressed wax seal', .235, .046, (0, -.12, .11), wax, 64)
-for v in seal.data.vertices:
-    angle = math.atan2(v.co.y, v.co.x)
-    factor = 1 + .026 * math.sin(angle * 7) + .016 * math.cos(angle * 11)
-    v.co.x *= factor; v.co.y *= factor
-finish('envelope')
+# Individual instant-film card: white paper border, with a wider caption margin.
+instant_paper = material('Instant film warm white border', 'f4f1e8', .78, specular=.25)
+micro_surface(instant_paper, (2.8, 3.4), .009, .78, .012, 'fiber', 71)
+rounded_panel('Individual Polaroid card', 2.8, 3.4, .028, .028,
+              (0, 0, .014), instant_paper, .004)
+finish('polaroid')
 
 # Open MacBook Pro. The local base is exactly 10.8 x 7.5, with its underside
 # at Z=0 and front edge at Y=-3.75. The lid is 105 degrees open from closed.
@@ -627,7 +613,7 @@ for name, width, height in [('mat',15,10),('mat-mobile',8,12)]:
     finish(name)
 
 # Save an editable, arranged desktop scene as well as the individual web exports.
-placements = {'notebook':((-3.3,.65,.025),-.13),'notebook-cover':((-3.3,.65,.025),-.13),'passport':((2,2.4,.025),.09),'passport-cover':((2,2.4,.025),.09),'disk':((.7,-1.9,.025),.12),'envelope':((4.7,-1.75,.025),-.16),'mat':((0,0,0),-.015),'macbook':((0,8.65,-.09),0)}
+placements = {'notebook':((-3.3,.65,.025),-.13),'notebook-cover':((-3.3,.65,.025),-.13),'passport':((2,2.4,.025),.09),'passport-cover':((2,2.4,.025),.09),'disk':((.7,-1.9,.025),.12),'polaroid':((4.7,-1.75,.025),-.16),'mat':((0,0,0),-.015),'macbook':((0,8.65,-.09),0)}
 for name, (pos, angle) in placements.items():
     models[name].location = pos; models[name].rotation_euler.z = angle
 models['passport'].scale = (.7, .7, .7)

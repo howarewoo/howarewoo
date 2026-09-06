@@ -15,9 +15,10 @@ import "@fontsource/dm-sans/500.css";
 import "@fontsource/dm-sans/700.css";
 import "@fontsource/dm-mono/400.css";
 import "./styles.css";
-import { bookSpreads, projects } from "./book-content";
+import { bookSpreads, bookPaths, bookTabs } from "./book-content";
 import Archive from "./Archive";
 import { passportSpreads } from "./passport-content";
+import { photos } from "./creative-content";
 const Workbench = lazy(async () => {
   await Promise.all(
     [400, 500, 700].map((weight) =>
@@ -28,11 +29,8 @@ const Workbench = lazy(async () => {
   return import("./Workbench");
 });
 function bookPageForPath(path: string): number | null {
-  if (path === "/projects") return 0;
-  const index = projects.findIndex(
-    (project) => path === `/projects/${project.slug}`,
-  );
-  return index < 0 ? null : index + 1;
+  const index = bookPaths.indexOf(path);
+  return index < 0 ? null : index;
 }
 function Arrow() {
   return (
@@ -88,6 +86,7 @@ function Home() {
   const bookOpen = bookPage !== null;
   const laptopOpen = pathname === "/laptop";
   const passportOpen = pathname === "/about";
+  const photo = photos.find((entry) => pathname === `/photos/${entry.id}`);
   const [passportPage, setPassportPage] = useState(0);
   const activePage = passportOpen ? passportPage : bookPage;
   const activeSpreads = passportOpen ? passportSpreads : bookSpreads;
@@ -100,21 +99,29 @@ function Home() {
       return;
     }
     if (page >= 0 && page < bookSpreads.length)
-      navigate(
-        page === 0 ? "/projects" : `/projects/${projects[page - 1].slug}`,
-        { replace: true },
-      );
+      navigate(bookPaths[page], { replace: true });
   };
   useEffect(() => {
-    if (bookOpen || passportOpen)
+    if (bookOpen || passportOpen || photo)
       reader.current?.focus({ preventScroll: true });
-  }, [bookOpen, passportOpen]);
+  }, [bookOpen, passportOpen, photo]);
   useEffect(() => {
-    if (activePage === null && !laptopOpen) return;
+    if (activePage === null && !laptopOpen && !photo) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         navigate("/");
+      } else if (photo) {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          reader.current?.focus();
+        } else if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+          event.preventDefault();
+          const index =
+            photos.indexOf(photo) + (event.key === "ArrowRight" ? 1 : -1);
+          if (photos[index])
+            navigate(`/photos/${photos[index].id}`, { replace: true });
+        }
       } else if (activePage === null) {
         return;
       } else if (
@@ -154,7 +161,7 @@ function Home() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [activePage, laptopOpen, passportOpen]);
+  }, [activePage, laptopOpen, passportOpen, photo]);
   const [systemReduced, setSystemReduced] = useState(
     () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
@@ -181,7 +188,7 @@ function Home() {
         aria-label={
           laptopOpen
             ? "A close-up of the MacBook Pro display with desktop shortcuts for current projects. Use Back to the desk or press Escape to return."
-            : "A leather notebook, U.S.-style passport, floppy disk, and sealed envelope on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all four objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are available through keyboard navigation."
+            : "A tabbed notebook for work, art, and fashion, a U.S.-style passport, a floppy disk, and individual Polaroid photographs on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all desk objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are available through keyboard navigation."
         }
       >
         <SceneBoundary>
@@ -198,6 +205,7 @@ function Home() {
               passportOpen={passportOpen}
               passportPage={passportPage}
               onPassportPageChange={turnPassportPage}
+              photoId={photo?.id ?? null}
               deskActive={pathname === "/"}
               resetGeneration={resetGeneration}
               resetFocused={resetFocused}
@@ -218,8 +226,25 @@ function Home() {
           onFocus={() => setResetFocused(true)}
           onBlur={() => setResetFocused(false)}
         >
-          Reset all four desk objects to their starting positions
+          Reset all desk objects to their starting positions
         </button>
+      )}
+      {photo && (
+        <section
+          className="sr-only"
+          ref={reader}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Photo ${photo.id}`}
+          tabIndex={-1}
+        >
+          <h1>{photo.caption}</h1>
+          <p>{photo.alt}</p>
+          <p>
+            Use left and right arrow keys to view other cards. Click outside the
+            photograph or press Escape to return to the desk.
+          </p>
+        </section>
       )}
       {activePage !== null && (
         <section
@@ -236,10 +261,12 @@ function Home() {
             className={passportOpen ? "sr-only" : undefined}
           >
             {passportOpen
-              ? "Swipe upward to turn forward, downward to turn back, or use the arrow keys. "
-              : "Turn pages with the left and right arrow keys, drag across a page, or click its outer edge. "}
-            Press Enter to visit a linked project. Click outside the book or
-            press Escape to close it.
+              ? "Scroll to turn pages, or drag upward to turn forward and downward to turn back. "
+              : "Scroll to turn pages, drag left or right, or click a page’s outer edge. "}
+            Pages follow your gesture, carry its momentum, and gently settle on
+            a spread when you release. You can also use the arrow keys. Press
+            Enter to visit a linked project. Click outside the book or press
+            Escape to close it.
           </p>
           <div
             aria-live="polite"
@@ -263,6 +290,18 @@ function Home() {
               >
                 {activeSpreads[activePage].right.link}
               </a>
+            )}
+            {!passportOpen && (
+              <p>
+                Notebook sections:{" "}
+                {bookTabs.map((tab, index) => (
+                  <span key={tab.label}>
+                    {index > 0 && ", "}
+                    {tab.label}
+                  </span>
+                ))}
+                . Use the physical tabs or arrow keys to change pages.
+              </p>
             )}
             <p>
               Spread {activePage + 1} of {activeSpreads.length}.
@@ -291,8 +330,10 @@ function Page({ title, children }: { title: string; children: ReactNode }) {
 }
 function ProjectDetail() {
   const { pathname } = useLocation();
-  const project = projects.find((p) => pathname === `/projects/${p.slug}`);
-  return project ? null : (
+  const known =
+    bookPageForPath(pathname) !== null ||
+    photos.some((entry) => pathname === `/photos/${entry.id}`);
+  return known ? null : (
     <Page title="Not on this desk.">
       <p>
         That project couldn’t be found. Head back to the workbench to explore.
@@ -326,7 +367,7 @@ function App() {
     <main
       id="main"
       tabIndex={-1}
-      className={`tabletop${bookPageForPath(location.pathname) !== null || location.pathname === "/about" ? " book-reading" : location.pathname === "/laptop" ? " laptop-focused" : location.pathname === "/archive" ? " archive-open" : location.pathname === "/" ? "" : " reading"}`}
+      className={`tabletop${bookPageForPath(location.pathname) !== null || location.pathname === "/about" || photos.some((entry) => location.pathname === `/photos/${entry.id}`) ? " book-reading" : location.pathname === "/laptop" ? " laptop-focused" : location.pathname === "/archive" ? " archive-open" : location.pathname === "/" ? "" : " reading"}`}
     >
       <a href="#main" className="skip-link">
         Skip to content
@@ -336,6 +377,9 @@ function App() {
         <Link to="/">The workbench</Link>
         {[
           ["/projects", "Work"],
+          ["/art", "Art"],
+          ["/fashion", "Fashion"],
+          ...(photos.length ? [[`/photos/${photos[0].id}`, "Photos"]] : []),
           ["/laptop", "MacBook Pro"],
           ["/about", "About"],
           ["/archive", "Archive"],
@@ -351,6 +395,11 @@ function App() {
         <Route path="/laptop" element={null} />
         <Route path="/projects" element={null} />
         <Route path="/projects/:slug" element={<ProjectDetail />} />
+        <Route path="/art" element={<ProjectDetail />} />
+        <Route path="/art/:page" element={<ProjectDetail />} />
+        <Route path="/fashion" element={<ProjectDetail />} />
+        <Route path="/fashion/:page" element={<ProjectDetail />} />
+        <Route path="/photos/:id" element={<ProjectDetail />} />
         <Route path="/archive" element={<Archive />} />
         <Route path="/about" element={null} />
         <Route

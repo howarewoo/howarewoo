@@ -11,8 +11,10 @@ import MatReset from "./MatReset";
 import LaptopDesktop from "./LaptopDesktop";
 import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
 import PhysicsObject from "./PhysicsObject";
-import { bookSpreads } from "./book-content";
+import { bookSpreads, bookTabs } from "./book-content";
 import { passportSpreads, passportPageImages } from "./passport-content";
+import { photos } from "./creative-content";
+import Polaroid from "./Polaroid";
 
 const modelNames = [
   "notebook",
@@ -20,12 +22,16 @@ const modelNames = [
   "passport",
   "passport-cover",
   "disk",
-  "envelope",
+  "polaroid",
   "mat",
   "mat-mobile",
   "macbook",
 ] as const;
-const modelPaths = modelNames.map((name) => `/models/${name}.glb`);
+const modelPaths = modelNames.map((name) =>
+  name === "notebook"
+    ? "/models/notebook.glb?v=cloth-only"
+    : `/models/${name}.glb`,
+);
 type ModelName = (typeof modelNames)[number];
 const draco = new DRACOLoader()
   .setDecoderPath("/draco/")
@@ -47,6 +53,7 @@ type WorkbenchProps = {
   passportOpen: boolean;
   passportPage: number;
   onPassportPageChange: (page: number) => void;
+  photoId: string | null;
   deskActive: boolean;
   resetGeneration: number;
   resetFocused: boolean;
@@ -64,6 +71,7 @@ function Scene({
   passportOpen,
   passportPage,
   onPassportPageChange,
+  photoId,
   deskActive,
   resetGeneration,
   resetFocused,
@@ -127,11 +135,16 @@ function Scene({
     ? Math.min(viewport.width / 9, viewport.height / 13)
     : Math.min(viewport.width / 16.4, viewport.height / 11.2);
   const openScale = mobile
-    ? Math.min((viewport.width - 0.65) / 3.85, (viewport.height - 1.7) / 5.25)
-    : Math.min((viewport.width - 2.4) / 7.65, (viewport.height - 2) / 5.3, 1.8);
+    ? Math.min((viewport.width - 0.65) / 5, (viewport.height - 1.7) / 5.25)
+    : Math.min((viewport.width - 2.4) / 8.4, (viewport.height - 2) / 5.3, 1.8);
   const passportScale = Math.min(
     (viewport.width - 0.4) / 5,
     (viewport.height - 0.6) / 7.6,
+  );
+  const photoScale = Math.min(
+    (viewport.width - 0.8) / 3,
+    (viewport.height - 1) / 3.6,
+    2.2,
   );
   const laptopScale = Math.min(1.05, viewport.width / 12);
   const laptopOrigin = useMemo<Position>(
@@ -315,7 +328,7 @@ function Scene({
           envMapIntensity={0.15}
         />
       </mesh>
-      {(bookOpen || passportOpen) && !cameraMoving && (
+      {(bookOpen || passportOpen || photoId !== null) && !cameraMoving && (
         <mesh
           position={[0, 0, 3]}
           onPointerDown={(event) => event.stopPropagation()}
@@ -380,6 +393,7 @@ function Scene({
             page={bookPage}
             onPageChange={onBookPageChange}
             spreads={bookSpreads}
+            tabs={bookTabs}
           />
         </PhysicsObject>
         <PhysicsObject
@@ -425,19 +439,41 @@ function Scene({
           disabled={deskDisabled}
           resetGeneration={resetGeneration}
         />
-        <PhysicsObject
-          model={models.envelope}
-          mass={0.06}
-          position={mobile ? [1.6, -4, 0.03] : [4.7, -1.75, 0.014]}
-          angle={-0.16}
-          to="/contact"
-          label="Contact"
-          reduced={reduced}
-          dragOwner={dragOwner}
-          disabled={deskDisabled}
-          resetGeneration={resetGeneration}
-          size={mobile ? 0.87 : 1}
-        />
+        {photos.map((photo, index) => (
+          <PhysicsObject
+            key={photo.id}
+            model={models.polaroid}
+            mass={0.025}
+            position={
+              mobile
+                ? [
+                    1.25 + index * 0.2,
+                    -4.05 + index * 0.16,
+                    0.014 + index * 0.026,
+                  ]
+                : [
+                    4.25 + index * 0.22,
+                    -1.95 + index * 0.18,
+                    0.014 + index * 0.032,
+                  ]
+            }
+            angle={-0.18 + index * 0.16}
+            to={`/photos/${photo.id}`}
+            label={`Photo ${photo.id}`}
+            reduced={reduced}
+            dragOwner={dragOwner}
+            disabled={deskDisabled}
+            resetGeneration={resetGeneration}
+            size={mobile ? 0.77 : 1}
+            focus={{
+              active: photoId === photo.id && !cameraMoving,
+              position: [0, 0, 4 / scale],
+              scale: photoScale / scale,
+            }}
+          >
+            <Polaroid model={models.polaroid} photo={photo} />
+          </PhysicsObject>
+        ))}
       </group>
     </Physics>
   );

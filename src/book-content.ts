@@ -1,3 +1,6 @@
+import { artWorks, fashionWorks } from "./creative-content";
+import type { CreativeWork } from "./creative-content";
+
 export const projects = [
   {
     slug: "triosens",
@@ -33,6 +36,7 @@ export type BookPage = {
   paragraphs: string[];
   url?: string;
   link?: string;
+  image?: string;
 };
 
 export type BookSpread = {
@@ -97,4 +101,40 @@ export const bookSpreads: BookSpread[] = [
       link: projects[2].link,
     },
   },
+  ...creativeSpreads("Art", artWorks),
+  ...creativeSpreads("Fashion", fashionWorks),
+];
+
+function creativeSpreads(title: string, works: CreativeWork[]): BookSpread[] {
+  if (!works.length)
+    return [
+      {
+        left: { title, paragraphs: [] },
+        right: { title: "Still developing.", paragraphs: [] },
+      },
+    ];
+  return works.map((work) => ({
+    left: { title: work.title, paragraphs: [work.description] },
+    right: { title: work.title, paragraphs: [], image: work.image },
+  }));
+}
+
+export const bookTabs = [
+  { label: "Work", page: 0 },
+  { label: "Art", page: projects.length + 1 },
+  {
+    label: "Fashion",
+    page: projects.length + 1 + Math.max(1, artWorks.length),
+  },
+];
+
+export const bookPaths = [
+  "/projects",
+  ...projects.map((project) => `/projects/${project.slug}`),
+  ...Array.from({ length: Math.max(1, artWorks.length) }, (_, index) =>
+    index ? `/art/${index + 1}` : "/art",
+  ),
+  ...Array.from({ length: Math.max(1, fashionWorks.length) }, (_, index) =>
+    index ? `/fashion/${index + 1}` : "/fashion",
+  ),
 ];
