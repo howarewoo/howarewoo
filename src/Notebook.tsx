@@ -1,9 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
-import { bookSpreads } from "./book-content";
-import type { BookPage } from "./book-content";
+import type { BookPage, BookSpread } from "./book-content";
 
 const PAGE_WIDTH = 3.5;
 const PAGE_HEIGHT = 4.65;
@@ -11,7 +10,6 @@ const PAGE_TOP = 0.347;
 const HINGE_X = -1.77;
 const COVER_Z = 0.4;
 const RIGHT_CENTER_X = 0.03;
-const LAST_PAGE = bookSpreads.length - 1;
 const TEXTURE_WIDTH = 1024;
 const TEXTURE_HEIGHT = 1360;
 const PAPER = "#f2ead5";
@@ -25,6 +23,9 @@ type NotebookProps = {
   reduced: boolean;
   page: number;
   onPageChange: (page: number) => void;
+  spreads: BookSpread[];
+  pageImages?: string[];
+  vertical?: boolean;
 };
 
 type PageSide = "left" | "right";
@@ -156,10 +157,6 @@ function drawPage(page: BookPage, side: PageSide, folio: number) {
   } satisfies RenderedPage;
 }
 
-function clampPage(page: number) {
-  return THREE.MathUtils.clamp(Math.round(page), 0, LAST_PAGE);
-}
-
 export default function Notebook({
   body,
   cover,
@@ -167,9 +164,16 @@ export default function Notebook({
   reduced,
   page,
   onPageChange,
+  spreads,
+  pageImages = [],
+  vertical = false,
 }: NotebookProps) {
   const { gl, invalidate } = useThree();
+  const loadedPages = useLoader(THREE.TextureLoader, pageImages);
+  const clampPage = (value: number) =>
+    THREE.MathUtils.clamp(Math.round(value), 0, spreads.length - 1);
   const coverPivot = useRef<THREE.Group>(null);
+  const orientation = useRef<THREE.Group>(null);
   const turningSheet = useRef<THREE.Group>(null);
   const paperRoot = useRef<THREE.Group>(null);
   const pointer = useRef<PointerSession | null>(null);
@@ -180,9 +184,19 @@ export default function Notebook({
   const [turn, setTurn] = useState<Turn | null>(null);
 
   const resources = useMemo(() => {
-    const pages = bookSpreads.map((spread, spreadIndex) => ({
-      left: drawPage(spread.left, "left", spreadIndex * 2 + 1),
-      right: drawPage(spread.right, "right", spreadIndex * 2 + 2),
+    const render = (content: BookPage, side: PageSide, index: number) =>
+      loadedPages[index]
+        ? {
+            texture: loadedPages[index].clone(),
+            linkLeft: null,
+            linkRight: null,
+            linkTop: null,
+            linkBottom: null,
+          }
+        : drawPage(content, side, index + 1);
+    const pages = spreads.map((spread, spreadIndex) => ({
+      left: render(spread.left, "left", spreadIndex * 2),
+      right: render(spread.right, "right", spreadIndex * 2 + 1),
     }));
     const maximumAnisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
     const materials = pages.map((spread) => ({
@@ -205,6 +219,8 @@ export default function Notebook({
     }));
     for (const spread of pages) {
       spread.left.texture.anisotropy = maximumAnisotropy;
+      spread.left.texture.colorSpace = THREE.SRGBColorSpace;
+      spread.right.texture.colorSpace = THREE.SRGBColorSpace;
       spread.right.texture.anisotropy = maximumAnisotropy;
     }
     return {
@@ -219,7 +235,7 @@ export default function Notebook({
         envMapIntensity: 0.24,
       }),
     };
-  }, [gl]);
+  }, [gl, spreads, loadedPages]);
 
   useEffect(
     () => () => {
@@ -305,6 +321,15 @@ export default function Notebook({
     const pivot = coverPivot.current;
     const sheet = turningSheet.current;
     let moving = false;
+    if (orientation.current) {
+      const target = vertical && open ? -Math.PI / 2 : 0;
+      const rotation = orientation.current.rotation;
+      rotation.z = reduced
+        ? target
+        : THREE.MathUtils.damp(rotation.z, target, 8.5, Math.min(delta, 0.05));
+      if (Math.abs(rotation.z - target) < 0.001) rotation.z = target;
+      else moving = true;
+    }
 
     if (pivot) {
       const target = open ? -Math.PI : 0;
@@ -403,8 +428,10 @@ export default function Notebook({
 
     const dx = event.clientX - session.startX;
     const dy = event.clientY - session.startY;
-    if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy) * 1.15) {
-      requestPage(requestedPage.current + (dx < 0 ? 1 : -1));
+    const travel = vertical ? dy : dx;
+    const cross = vertical ? dx : dy;
+    if (Math.abs(travel) > 42 && Math.abs(travel) > Math.abs(cross) * 1.15) {
+      requestPage(requestedPage.current + (travel < 0 ? 1 : -1));
       return;
     }
 
@@ -413,7 +440,7 @@ export default function Notebook({
       const rendered = resources.pages[session.page.spread][session.page.side];
       const canvasX = session.uv.x * TEXTURE_WIDTH;
       const canvasY = (1 - session.uv.y) * TEXTURE_HEIGHT;
-      const content = bookSpreads[session.page.spread][session.page.side];
+      const content = spreads[session.page.spread][session.page.side];
       if (
         content.url &&
         rendered.linkLeft !== null &&
@@ -444,6 +471,7 @@ export default function Notebook({
 
   return (
     <group
+      ref={orientation}
       dispose={null}
       onPointerDown={(event) => {
         if (open) event.stopPropagation();

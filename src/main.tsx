@@ -17,6 +17,7 @@ import "@fontsource/dm-mono/400.css";
 import "./styles.css";
 import { bookSpreads, projects } from "./book-content";
 import Archive from "./Archive";
+import { passportSpreads } from "./passport-content";
 const Workbench = lazy(async () => {
   await Promise.all(
     [400, 500, 700].map((weight) =>
@@ -83,7 +84,18 @@ function Home() {
   const bookPage = bookPageForPath(pathname);
   const bookOpen = bookPage !== null;
   const laptopOpen = pathname === "/laptop";
+  const passportOpen = pathname === "/about";
+  const [passportPage, setPassportPage] = useState(0);
+  const activePage = passportOpen ? passportPage : bookPage;
+  const activeSpreads = passportOpen ? passportSpreads : bookSpreads;
+  const turnPassportPage = (page: number) => {
+    setPassportPage(Math.max(0, Math.min(page, passportSpreads.length - 1)));
+  };
   const turnPage = (page: number) => {
+    if (passportOpen) {
+      turnPassportPage(page);
+      return;
+    }
     if (page >= 0 && page < bookSpreads.length)
       navigate(
         page === 0 ? "/projects" : `/projects/${projects[page - 1].slug}`,
@@ -91,27 +103,46 @@ function Home() {
       );
   };
   useEffect(() => {
-    if (bookOpen) reader.current?.focus({ preventScroll: true });
-  }, [bookOpen]);
+    if (bookOpen || passportOpen)
+      reader.current?.focus({ preventScroll: true });
+  }, [bookOpen, passportOpen]);
   useEffect(() => {
-    if (bookPage === null && !laptopOpen) return;
+    if (activePage === null && !laptopOpen) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         navigate("/");
-      } else if (bookPage === null) {
+      } else if (activePage === null) {
         return;
-      } else if (event.key === "ArrowRight") {
+      } else if (
+        event.key === "ArrowRight" ||
+        (passportOpen && event.key === "ArrowUp")
+      ) {
         event.preventDefault();
-        turnPage(bookPage + 1);
-      } else if (event.key === "ArrowLeft") {
+        turnPage(activePage + 1);
+      } else if (
+        event.key === "ArrowLeft" ||
+        (passportOpen && event.key === "ArrowDown")
+      ) {
         event.preventDefault();
-        turnPage(bookPage - 1);
+        turnPage(activePage - 1);
       } else if (event.key === "Tab") {
         event.preventDefault();
-        reader.current?.focus();
+        const root = reader.current;
+        if (!root) return;
+        const targets = [
+          root,
+          ...Array.from(
+            root.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"),
+          ).filter((button) => button.offsetWidth > 0),
+        ];
+        const current = targets.indexOf(document.activeElement as HTMLElement);
+        targets[
+          (current + (event.shiftKey ? -1 : 1) + targets.length) %
+            targets.length
+        ].focus();
       } else if (event.key === "Enter") {
-        const url = bookSpreads[bookPage].right.url;
+        const url = activeSpreads[activePage].right.url;
         if (url) {
           event.preventDefault();
           window.open(url, "_blank", "noopener,noreferrer");
@@ -120,7 +151,7 @@ function Home() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [bookPage, laptopOpen]);
+  }, [activePage, laptopOpen, passportOpen]);
   const [systemReduced, setSystemReduced] = useState(
     () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
@@ -147,7 +178,7 @@ function Home() {
         aria-label={
           laptopOpen
             ? "A close-up of the MacBook Pro display. Use Back to the desk or press Escape to return."
-            : "A leather notebook, card, floppy disk, and sealed envelope on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all four objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are in the desk index."
+            : "A leather notebook, U.S.-style passport, floppy disk, and sealed envelope on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all four objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are in the desk index."
         }
       >
         <SceneBoundary>
@@ -161,6 +192,9 @@ function Home() {
               bookOpen={bookOpen}
               laptopOpen={laptopOpen}
               bookPage={bookPage ?? 0}
+              passportOpen={passportOpen}
+              passportPage={passportPage}
+              onPassportPageChange={turnPassportPage}
               deskActive={pathname === "/"}
               resetGeneration={resetGeneration}
               resetFocused={resetFocused}
@@ -184,38 +218,51 @@ function Home() {
           Reset all four desk objects to their starting positions
         </button>
       )}
-      {bookPage !== null && (
+      {activePage !== null && (
         <section
-          className="sr-only book-reader"
+          className={passportOpen ? "passport-reader" : "sr-only book-reader"}
           ref={reader}
           role="dialog"
           aria-modal="true"
-          aria-label="Open notebook"
+          aria-label={passportOpen ? "Open passport" : "Open notebook"}
           aria-describedby="book-instructions"
           tabIndex={-1}
         >
-          <p id="book-instructions">
-            Turn pages with the left and right arrow keys, drag across a page,
-            or click its outer edge. Press Enter to visit the project. Click
-            outside the book or press Escape to close it.
+          <p
+            id="book-instructions"
+            className={passportOpen ? "sr-only" : undefined}
+          >
+            {passportOpen
+              ? "Swipe upward to turn forward, downward to turn back, or use the arrow keys. "
+              : "Turn pages with the left and right arrow keys, drag across a page, or click its outer edge. "}
+            Press Enter to visit a linked project. Click outside the book or
+            press Escape to close it.
           </p>
-          <div aria-live="polite" aria-atomic="true">
-            <h1>{bookSpreads[bookPage].right.title}</h1>
-            {bookSpreads[bookPage].right.paragraphs.map((paragraph) => (
+          <div
+            aria-live="polite"
+            aria-atomic="true"
+            className={passportOpen ? "sr-only" : undefined}
+          >
+            <h1>{activeSpreads[activePage].right.title}</h1>
+            {passportOpen &&
+              activeSpreads[activePage].left.paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            {activeSpreads[activePage].right.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
-            {bookSpreads[bookPage].right.url && (
+            {activeSpreads[activePage].right.url && (
               <a
                 tabIndex={-1}
-                href={bookSpreads[bookPage].right.url}
+                href={activeSpreads[activePage].right.url}
                 target="_blank"
                 rel="noreferrer"
               >
-                {bookSpreads[bookPage].right.link}
+                {activeSpreads[activePage].right.link}
               </a>
             )}
             <p>
-              Spread {bookPage + 1} of {bookSpreads.length}.
+              Spread {activePage + 1} of {activeSpreads.length}.
             </p>
           </div>
         </section>
@@ -263,6 +310,7 @@ function App() {
           : heading;
     if (
       bookPageForPath(location.pathname) === null &&
+      location.pathname !== "/about" &&
       location.key !== "default" &&
       focusTarget instanceof HTMLElement
     ) {
@@ -274,7 +322,7 @@ function App() {
   return (
     <main
       id="main"
-      className={`tabletop${bookPageForPath(location.pathname) !== null ? " book-reading" : location.pathname === "/laptop" ? " laptop-focused" : location.pathname === "/archive" ? " archive-open" : location.pathname === "/" ? "" : " reading"}`}
+      className={`tabletop${bookPageForPath(location.pathname) !== null || location.pathname === "/about" ? " book-reading" : location.pathname === "/laptop" ? " laptop-focused" : location.pathname === "/archive" ? " archive-open" : location.pathname === "/" ? "" : " reading"}`}
     >
       <a href="#main" className="skip-link">
         Skip to content
@@ -303,27 +351,7 @@ function App() {
         <Route path="/projects" element={null} />
         <Route path="/projects/:slug" element={<ProjectDetail />} />
         <Route path="/archive" element={<Archive />} />
-        <Route
-          path="/about"
-          element={
-            <Page title="Hello, I’m Adam.">
-              <p className="page-lead">An engineer who likes making things.</p>
-              <p>
-                Former senior engineer at Meta Superintelligence Lab and
-                Instagram.
-              </p>
-              <p>
-                These days, my projects include TrioSens and woostack: tools for
-                understanding AI brand visibility and working with AI coding
-                agents.
-              </p>
-              <Link className="external" to="/projects">
-                See what I’m building
-                <Arrow />
-              </Link>
-            </Page>
-          }
-        />
+        <Route path="/about" element={null} />
         <Route
           path="/contact"
           element={

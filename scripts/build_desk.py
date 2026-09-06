@@ -20,6 +20,8 @@ SOURCE.mkdir(parents=True, exist_ok=True)
 uv_binary = shutil.which('uv') or '/opt/homebrew/bin/uv'
 subprocess.run([uv_binary, 'run', '--script',
                 str(ROOT / 'scripts/build_mat_texture.py')], check=True)
+subprocess.run([uv_binary, 'run', '--script',
+                str(ROOT / 'scripts/build_passport_texture.py')], check=True)
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
 DECODERS = ROOT / 'public/draco'
@@ -441,11 +443,34 @@ line('Hinge crease', [(-1.55, -2.37, .449), (-1.55, 2.37, .449)], .007, elastic)
 box('Elastic closure', (.14, 4.94, .027), (1.37, 0, .464), elastic, .012)
 finish('notebook-cover')
 
-# Blank cotton business card, plus a second card underneath.
-under = box('Second business card', (4.0, 2.45, .022), (.09, -.06, .013), paper_edge, .004)
-under.rotation_euler.z = -.025
-box('Cotton business card', (4.0, 2.45, .036), (0, 0, .047), paper, .006)
-finish('card')
+# Passport shares the notebook hinge/page coordinates, with its own cover and binding.
+passport_navy = material('Passport navy pebbled cover', '142439', .61, specular=.32)
+micro_surface(passport_navy, (4, 5), .10, .61, .025, 'eggshell', 53)
+passport_print = passport_navy.copy()
+passport_print.name = 'Passport gold cover print'
+passport_image = bpy.data.images.load(str(SOURCE / 'textures/passport-cover-color.jpg'))
+passport_image.colorspace_settings.name = 'sRGB'
+passport_image.pack()
+passport_texture = passport_print.node_tree.nodes.new('ShaderNodeTexImage')
+passport_texture.image = passport_image
+passport_print.node_tree.links.new(passport_texture.outputs['Color'],
+                                  passport_print.node_tree.nodes.get('Principled BSDF').inputs['Base Color'])
+rounded_panel('Passport back cover', 3.72, 4.92, .09, .10,
+              (0, 0, .06), passport_navy, .014)
+box('Passport bound pages', (3.55, 4.72, .25), (.035, 0, .22), paper, .018)
+for i in range(12):
+    z = .11 + i * .019
+    line('Passport page edge', [(1.813, -2.30, z), (1.813, 2.30, z)], .0018, paper_edge)
+box('Passport stitched spine', (.16, 4.88, .37), (-1.77, 0, .23), passport_navy, .05)
+finish('passport')
+passport_cover = rounded_panel('Passport front cover', 3.72, 4.92, .095, .10,
+                               (0, 0, .4), passport_print, .014)
+surface_uv(passport_cover, 3.72, 4.92, 1)
+passport_cover.data.materials.append(passport_navy)
+for face in passport_cover.data.polygons:
+    if face.normal.z < .9:
+        face.material_index = 1
+finish('passport-cover')
 
 # A 3.5-inch disk: chamfered injection molding, pressed shutter, and blank paper label.
 body = box('Disk casing', (2.65, 2.75, .16), (0, 0, .1), plastic, .065)
@@ -602,9 +627,11 @@ for name, width, height in [('mat',15,10),('mat-mobile',8,12)]:
     finish(name)
 
 # Save an editable, arranged desktop scene as well as the individual web exports.
-placements = {'notebook':((-3.3,.65,.025),-.13),'notebook-cover':((-3.3,.65,.025),-.13),'card':((2,2.4,.025),.09),'disk':((.7,-1.9,.025),.12),'envelope':((4.7,-1.75,.025),-.16),'mat':((0,0,0),-.015),'macbook':((0,8.65,-.09),0)}
+placements = {'notebook':((-3.3,.65,.025),-.13),'notebook-cover':((-3.3,.65,.025),-.13),'passport':((2,2.4,.025),.09),'passport-cover':((2,2.4,.025),.09),'disk':((.7,-1.9,.025),.12),'envelope':((4.7,-1.75,.025),-.16),'mat':((0,0,0),-.015),'macbook':((0,8.65,-.09),0)}
 for name, (pos, angle) in placements.items():
     models[name].location = pos; models[name].rotation_euler.z = angle
+models['passport'].scale = (.7, .7, .7)
+models['passport-cover'].scale = (.7, .7, .7)
 models['mat-mobile'].hide_render = True; models['mat-mobile'].hide_viewport = True
 for obj in models['mat-mobile'].children:
     obj.hide_render = True

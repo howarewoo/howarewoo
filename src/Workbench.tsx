@@ -10,11 +10,14 @@ import LaptopCamera from "./LaptopCamera";
 import MatReset from "./MatReset";
 import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
 import PhysicsObject from "./PhysicsObject";
+import { bookSpreads } from "./book-content";
+import { passportSpreads, passportPageImages } from "./passport-content";
 
 const modelNames = [
   "notebook",
   "notebook-cover",
-  "card",
+  "passport",
+  "passport-cover",
   "disk",
   "envelope",
   "mat",
@@ -40,6 +43,9 @@ type WorkbenchProps = {
   bookOpen: boolean;
   laptopOpen: boolean;
   bookPage: number;
+  passportOpen: boolean;
+  passportPage: number;
+  onPassportPageChange: (page: number) => void;
   deskActive: boolean;
   resetGeneration: number;
   resetFocused: boolean;
@@ -54,6 +60,9 @@ function Scene({
   bookOpen,
   laptopOpen,
   bookPage,
+  passportOpen,
+  passportPage,
+  onPassportPageChange,
   deskActive,
   resetGeneration,
   resetFocused,
@@ -119,6 +128,10 @@ function Scene({
   const openScale = mobile
     ? Math.min((viewport.width - 0.65) / 3.85, (viewport.height - 1.7) / 5.25)
     : Math.min((viewport.width - 2.4) / 7.65, (viewport.height - 2) / 5.3, 1.8);
+  const passportScale = Math.min(
+    (viewport.width - 0.4) / 5,
+    (viewport.height - 0.6) / 7.6,
+  );
   const laptopScale = Math.min(1.05, viewport.width / 12);
   const laptopOrigin = useMemo<Position>(
     () => [
@@ -300,7 +313,7 @@ function Scene({
           envMapIntensity={0.15}
         />
       </mesh>
-      {bookOpen && !cameraMoving && (
+      {(bookOpen || passportOpen) && !cameraMoving && (
         <mesh
           position={[0, 0, 3]}
           onPointerDown={(event) => event.stopPropagation()}
@@ -364,11 +377,13 @@ function Scene({
             reduced={reduced}
             page={bookPage}
             onPageChange={onBookPageChange}
+            spreads={bookSpreads}
           />
         </PhysicsObject>
         <PhysicsObject
-          model={models.card}
-          mass={0.045}
+          model={models.passport}
+          collisionCover={models["passport-cover"]}
+          mass={0.09}
           position={mobile ? [1.85, -0.4, 0.02] : [2, 2.4, 0.014]}
           angle={0.09}
           to="/about"
@@ -377,8 +392,25 @@ function Scene({
           dragOwner={dragOwner}
           disabled={deskDisabled}
           resetGeneration={resetGeneration}
-          size={mobile ? 0.9 : 1}
-        />
+          size={mobile ? 0.6 : 0.7}
+          focus={{
+            active: passportOpen && !cameraMoving,
+            position: [0, (-1.77 * passportScale) / scale, 4 / scale],
+            scale: passportScale / scale,
+          }}
+        >
+          <Notebook
+            body={models.passport}
+            cover={models["passport-cover"]}
+            open={passportOpen && !cameraMoving}
+            reduced={reduced}
+            page={passportPage}
+            onPageChange={onPassportPageChange}
+            spreads={passportSpreads}
+            pageImages={passportPageImages}
+            vertical
+          />
+        </PhysicsObject>
         <PhysicsObject
           model={models.disk}
           mass={0.085}
