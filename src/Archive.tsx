@@ -37,7 +37,6 @@ export default function Archive() {
             <a href="#project-directory">Project directory</a>
             <a href="#about-archive">About this archive</a>
             <Link to="/projects">Current projects</Link>
-            <Link to="/about">About Adam</Link>
             <Link to="/contact">Get in touch</Link>
           </nav>
           <hr />

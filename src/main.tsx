@@ -17,7 +17,6 @@ import "@fontsource/dm-mono/400.css";
 import "./styles.css";
 import { bookSpreads, bookPaths, bookTabs } from "./book-content";
 import Archive from "./Archive";
-import { passportSpreads } from "./passport-content";
 import { photos } from "./creative-content";
 const Workbench = lazy(async () => {
   await Promise.all(
@@ -85,26 +84,16 @@ function Home() {
   const bookPage = bookPageForPath(pathname);
   const bookOpen = bookPage !== null;
   const laptopOpen = pathname === "/laptop";
-  const passportOpen = pathname === "/about";
   const photo = photos.find((entry) => pathname === `/photos/${entry.id}`);
-  const [passportPage, setPassportPage] = useState(0);
-  const activePage = passportOpen ? passportPage : bookPage;
-  const activeSpreads = passportOpen ? passportSpreads : bookSpreads;
-  const turnPassportPage = (page: number) => {
-    setPassportPage(Math.max(0, Math.min(page, passportSpreads.length - 1)));
-  };
+  const activePage = bookPage;
+  const activeSpreads = bookSpreads;
   const turnPage = (page: number) => {
-    if (passportOpen) {
-      turnPassportPage(page);
-      return;
-    }
     if (page >= 0 && page < bookSpreads.length)
       navigate(bookPaths[page], { replace: true });
   };
   useEffect(() => {
-    if (bookOpen || passportOpen || photo)
-      reader.current?.focus({ preventScroll: true });
-  }, [bookOpen, passportOpen, photo]);
+    if (bookOpen || photo) reader.current?.focus({ preventScroll: true });
+  }, [bookOpen, photo]);
   useEffect(() => {
     if (activePage === null && !laptopOpen && !photo) return;
     const onKey = (event: KeyboardEvent) => {
@@ -124,16 +113,10 @@ function Home() {
         }
       } else if (activePage === null) {
         return;
-      } else if (
-        event.key === "ArrowRight" ||
-        (passportOpen && event.key === "ArrowUp")
-      ) {
+      } else if (event.key === "ArrowRight") {
         event.preventDefault();
         turnPage(activePage + 1);
-      } else if (
-        event.key === "ArrowLeft" ||
-        (passportOpen && event.key === "ArrowDown")
-      ) {
+      } else if (event.key === "ArrowLeft") {
         event.preventDefault();
         turnPage(activePage - 1);
       } else if (event.key === "Tab") {
@@ -161,7 +144,7 @@ function Home() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [activePage, laptopOpen, passportOpen, photo]);
+  }, [activePage, laptopOpen, photo]);
   const [systemReduced, setSystemReduced] = useState(
     () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
@@ -188,7 +171,7 @@ function Home() {
         aria-label={
           laptopOpen
             ? "A close-up of the MacBook Pro display with a macOS-style menu bar and desktop shortcuts for current projects. Drag the top edge of the lid downward to close it, or press Escape to return to the desk."
-            : "A tabbed notebook for work, art, and fashion, a U.S.-style passport, a floppy disk, and individual Polaroid photographs on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all desk objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are available through keyboard navigation."
+            : "A tabbed notebook for work, art, and fashion, a floppy disk, and individual Polaroid photographs on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all desk objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are available through keyboard navigation."
         }
       >
         <SceneBoundary>
@@ -202,9 +185,6 @@ function Home() {
               bookOpen={bookOpen}
               laptopOpen={laptopOpen}
               bookPage={bookPage ?? 0}
-              passportOpen={passportOpen}
-              passportPage={passportPage}
-              onPassportPageChange={turnPassportPage}
               photoId={photo?.id ?? null}
               deskActive={pathname === "/"}
               resetGeneration={resetGeneration}
@@ -248,36 +228,23 @@ function Home() {
       )}
       {activePage !== null && (
         <section
-          className={passportOpen ? "passport-reader" : "sr-only book-reader"}
+          className="sr-only book-reader"
           ref={reader}
           role="dialog"
           aria-modal="true"
-          aria-label={passportOpen ? "Open passport" : "Open notebook"}
+          aria-label="Open notebook"
           aria-describedby="book-instructions"
           tabIndex={-1}
         >
-          <p
-            id="book-instructions"
-            className={passportOpen ? "sr-only" : undefined}
-          >
-            {passportOpen
-              ? "Scroll to turn pages, or drag upward to turn forward and downward to turn back. "
-              : "Scroll to turn pages, drag left or right, or click a page’s outer edge. "}
-            Pages follow your gesture, carry its momentum, and gently settle on
-            a spread when you release. You can also use the arrow keys. Press
-            Enter to visit a linked project. Click outside the book or press
-            Escape to close it.
+          <p id="book-instructions">
+            Scroll to turn pages, drag left or right, or click a page’s outer
+            edge. Pages follow your gesture, carry its momentum, and gently
+            settle on a spread when you release. You can also use the arrow
+            keys. Press Enter to visit a linked project. Click outside the book
+            or press Escape to close it.
           </p>
-          <div
-            aria-live="polite"
-            aria-atomic="true"
-            className={passportOpen ? "sr-only" : undefined}
-          >
+          <div aria-live="polite" aria-atomic="true">
             <h1>{activeSpreads[activePage].right.title}</h1>
-            {passportOpen &&
-              activeSpreads[activePage].left.paragraphs.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
             {activeSpreads[activePage].right.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
@@ -291,18 +258,16 @@ function Home() {
                 {activeSpreads[activePage].right.link}
               </a>
             )}
-            {!passportOpen && (
-              <p>
-                Notebook sections:{" "}
-                {bookTabs.map((tab, index) => (
-                  <span key={tab.label}>
-                    {index > 0 && ", "}
-                    {tab.label}
-                  </span>
-                ))}
-                . Use the physical tabs or arrow keys to change pages.
-              </p>
-            )}
+            <p>
+              Notebook sections:{" "}
+              {bookTabs.map((tab, index) => (
+                <span key={tab.label}>
+                  {index > 0 && ", "}
+                  {tab.label}
+                </span>
+              ))}
+              . Use the physical tabs or arrow keys to change pages.
+            </p>
             <p>
               Spread {activePage + 1} of {activeSpreads.length}.
             </p>
@@ -350,7 +315,6 @@ function App() {
       location.pathname === "/" ? document.getElementById("main") : heading;
     if (
       bookPageForPath(location.pathname) === null &&
-      location.pathname !== "/about" &&
       location.key !== "default" &&
       focusTarget instanceof HTMLElement
     ) {
@@ -363,7 +327,7 @@ function App() {
     <main
       id="main"
       tabIndex={-1}
-      className={`tabletop${bookPageForPath(location.pathname) !== null || location.pathname === "/about" || photos.some((entry) => location.pathname === `/photos/${entry.id}`) ? " book-reading" : location.pathname === "/laptop" ? " laptop-focused" : location.pathname === "/archive" ? " archive-open" : location.pathname === "/" ? "" : " reading"}`}
+      className={`tabletop${bookPageForPath(location.pathname) !== null || photos.some((entry) => location.pathname === `/photos/${entry.id}`) ? " book-reading" : location.pathname === "/laptop" ? " laptop-focused" : location.pathname === "/archive" ? " archive-open" : location.pathname === "/" ? "" : " reading"}`}
     >
       <a href="#main" className="skip-link">
         Skip to content
@@ -377,7 +341,6 @@ function App() {
           ["/fashion", "Fashion"],
           ...(photos.length ? [[`/photos/${photos[0].id}`, "Photos"]] : []),
           ["/laptop", "MacBook Pro"],
-          ["/about", "About"],
           ["/archive", "Archive"],
           ["/contact", "Contact"],
         ].map(([to, label]) => (
@@ -397,7 +360,6 @@ function App() {
         <Route path="/fashion/:page" element={<ProjectDetail />} />
         <Route path="/photos/:id" element={<ProjectDetail />} />
         <Route path="/archive" element={<Archive />} />
-        <Route path="/about" element={null} />
         <Route
           path="/contact"
           element={

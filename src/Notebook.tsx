@@ -17,7 +17,6 @@ const TEXTURE_HEIGHT = 1360;
 const PAPER = "#f2ead5";
 const INK = "#292821";
 const QUIET_INK = "#39362d";
-const NO_PAGE_IMAGES: string[] = [];
 
 type NotebookTab = { label: string; page: number };
 
@@ -29,8 +28,6 @@ type NotebookProps = {
   page: number;
   onPageChange: (page: number) => void;
   spreads: BookSpread[];
-  pageImages?: string[];
-  vertical?: boolean;
   tabs?: readonly NotebookTab[];
 };
 
@@ -165,12 +162,7 @@ function paintPageWear(
   context.restore();
 }
 
-function drawPage(
-  page: BookPage,
-  side: PageSide,
-  folio: number,
-  worn: boolean,
-) {
+function drawPage(page: BookPage, side: PageSide, folio: number) {
   const canvas = document.createElement("canvas");
   canvas.width = TEXTURE_WIDTH;
   canvas.height = TEXTURE_HEIGHT;
@@ -180,7 +172,7 @@ function drawPage(
 
   context.fillStyle = PAPER;
   context.fillRect(0, 0, canvas.width, canvas.height);
-  if (worn) paintPageWear(context, side, folio);
+  paintPageWear(context, side, folio);
   const gutter = context.createLinearGradient(
     side === "right" ? 0 : canvas.width,
     0,
@@ -570,15 +562,13 @@ export default function Notebook({
   page,
   onPageChange,
   spreads,
-  pageImages = NO_PAGE_IMAGES,
-  vertical = false,
   tabs,
 }: NotebookProps) {
   const { gl, invalidate, camera: sceneCamera } = useThree();
   const imageSources = useMemo(() => {
-    const sources = spreads.flatMap((spread, index) => [
-      pageImages[index * 2] ?? spread.left.image,
-      pageImages[index * 2 + 1] ?? spread.right.image,
+    const sources = spreads.flatMap((spread) => [
+      spread.left.image,
+      spread.right.image,
     ]);
     const paths = [
       ...new Set(sources.filter((path): path is string => !!path)),
@@ -587,12 +577,11 @@ export default function Notebook({
       paths,
       indices: sources.map((path) => (path ? paths.indexOf(path) : -1)),
     };
-  }, [pageImages, spreads]);
+  }, [spreads]);
   const loadedPages = useLoader(THREE.TextureLoader, imageSources.paths);
   const clampPage = (value: number) =>
     THREE.MathUtils.clamp(Math.round(value), 0, spreads.length - 1);
   const coverPivot = useRef<THREE.Group>(null);
-  const orientation = useRef<THREE.Group>(null);
   const turningSheet = useRef<THREE.Group>(null);
   const paperRoot = useRef<THREE.Group>(null);
   const pointer = useRef<PointerSession | null>(null);
@@ -613,18 +602,16 @@ export default function Notebook({
   const [turn, setTurn] = useState<Turn | null>(null);
   const imageTexture = (
     source: THREE.Texture,
-    fullBleed: boolean,
     side: PageSide,
     folio: number,
   ) => {
-    if (fullBleed) return source.clone();
     const canvas = document.createElement("canvas");
     canvas.width = TEXTURE_WIDTH;
     canvas.height = TEXTURE_HEIGHT;
     const context = canvas.getContext("2d")!;
     context.fillStyle = PAPER;
     context.fillRect(0, 0, canvas.width, canvas.height);
-    if (!vertical) paintPageWear(context, side, folio);
+    paintPageWear(context, side, folio);
     const image = source.image;
     const ratio = Math.min(
       (canvas.width - 128) / image.width,
@@ -648,7 +635,6 @@ export default function Notebook({
         ? {
             texture: imageTexture(
               loadedPages[imageSources.indices[index]],
-              !!pageImages[index],
               side,
               index + 1,
             ),
@@ -657,7 +643,7 @@ export default function Notebook({
             linkTop: null,
             linkBottom: null,
           }
-        : drawPage(content, side, index + 1, !vertical);
+        : drawPage(content, side, index + 1);
     const pages = spreads.map((spread, spreadIndex) => ({
       left: render(spread.left, "left", spreadIndex * 2),
       right: render(spread.right, "right", spreadIndex * 2 + 1),
@@ -768,7 +754,7 @@ export default function Notebook({
         envMapIntensity: 0.24,
       }),
     };
-  }, [gl, spreads, loadedPages, imageSources, pageImages, vertical]);
+  }, [gl, spreads, loadedPages, imageSources]);
 
   useEffect(
     () => () => {
@@ -945,15 +931,6 @@ export default function Notebook({
     const pivot = coverPivot.current;
     const sheet = turningSheet.current;
     let moving = false;
-    if (orientation.current) {
-      const target = vertical && open ? -Math.PI / 2 : 0;
-      const rotation = orientation.current.rotation;
-      rotation.z = reduced
-        ? target
-        : THREE.MathUtils.damp(rotation.z, target, 8.5, Math.min(delta, 0.05));
-      if (Math.abs(rotation.z - target) < 0.001) rotation.z = target;
-      else moving = true;
-    }
 
     if (pivot) {
       const target = open ? -Math.PI : 0;
@@ -1070,8 +1047,8 @@ export default function Notebook({
     event.stopPropagation();
     const dx = event.clientX - session.startX;
     const dy = event.clientY - session.startY;
-    const travel = vertical ? dy : dx;
-    const cross = vertical ? dx : dy;
+    const travel = dx;
+    const cross = dy;
     if (
       !session.dragging &&
       Math.abs(travel) > 7 &&
@@ -1093,7 +1070,7 @@ export default function Notebook({
     const dx = event.clientX - session.startX;
     const dy = event.clientY - session.startY;
     if (session.dragging) {
-      const travel = vertical ? dy : dx;
+      const travel = dx;
       scrub(session.startPage - travel / session.extent);
       settle();
       return;
@@ -1137,7 +1114,6 @@ export default function Notebook({
 
   return (
     <group
-      ref={orientation}
       dispose={null}
       onPointerDown={(event) => {
         if (open) event.stopPropagation();
@@ -1152,7 +1128,7 @@ export default function Notebook({
       <group rotation={[Math.PI / 2, 0, 0]}>
         <primitive object={body} dispose={null} />
       </group>
-      {!vertical && <RibbonBookmark reduced={reduced} />}
+      <RibbonBookmark reduced={reduced} />
 
       <group ref={paperRoot}>
         {tabs && tabs.length > 0 && (
