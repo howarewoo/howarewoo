@@ -53,6 +53,7 @@ const TABLE_WALL_GAP = 0.06;
 const FLOOR_DROP = 24;
 
 type WorkbenchProps = {
+  onReady: () => void;
   reduced: boolean;
   bookOpen: boolean;
   laptopOpen: boolean;
@@ -80,6 +81,7 @@ function Scene({
   onResetAvailableChange,
   onBookPageChange,
   onBookClose,
+  onReady,
 }: WorkbenchProps) {
   const { size, gl, invalidate } = useThree();
   // Desk layout must not resize itself when the focus camera changes zoom.
@@ -210,6 +212,7 @@ function Scene({
       maxCcdSubsteps={4}
       paused={deskDisabled && !laptopOpen && !lidMoving && !cameraMoving}
     >
+      <SceneReady onReady={onReady} />
       <DeskLighting />
       <RigidBody type="fixed" colliders={false} name="Desk and room colliders">
         <CuboidCollider
@@ -454,6 +457,29 @@ function Scene({
   );
 }
 
+function SceneReady({ onReady }: { onReady: () => void }) {
+  useEffect(() => {
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(onReady);
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+    };
+  }, [onReady]);
+  return null;
+}
+function UnavailableScene() {
+  return (
+    <p className="scene-message">
+      3D isn’t available on this device. Explore{" "}
+      <a href="/archive">the archive</a> or{" "}
+      <a href="/contact">contact Adam</a>.
+    </p>
+  );
+}
+
 export default function Workbench(props: WorkbenchProps) {
   return (
     <Canvas
@@ -469,18 +495,7 @@ export default function Workbench(props: WorkbenchProps) {
         toneMappingExposure: 0.95,
       }}
       fallback={
-        <p className="scene-message">
-          3D isn’t available on this device. Use keyboard navigation to explore,
-          or visit{" "}
-          <a href="/archive" tabIndex={-1}>
-            the archive
-          </a>{" "}
-          or{" "}
-          <a href="/contact" tabIndex={-1}>
-            contact Adam
-          </a>
-          .
-        </p>
+        <UnavailableScene />
       }
     >
       <Scene {...props} />

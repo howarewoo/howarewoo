@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, useEffect, useRef, useState } from "react";
+import { Component, lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -18,6 +18,7 @@ import "./styles.css";
 import { bookSpreads, bookPaths, bookTabs } from "./book-content";
 import Archive from "./Archive";
 import { photos } from "./creative-content";
+import LoadingScreen from "./LoadingScreen";
 const Workbench = lazy(async () => {
   await Promise.all(
     [400, 500, 700].map((weight) =>
@@ -56,12 +57,15 @@ function External({ href, children }: { href: string; children: ReactNode }) {
   );
 }
 class SceneBoundary extends Component<
-  { children: ReactNode },
+  { children: ReactNode; onError: () => void },
   { failed: boolean }
 > {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onError();
   }
   render() {
     return this.state.failed ? (
@@ -81,6 +85,8 @@ function Home() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const reader = useRef<HTMLElement>(null);
+  const [sceneReady, setSceneReady] = useState(false);
+  const finishLoading = useCallback(() => setSceneReady(true), []);
   const bookPage = bookPageForPath(pathname);
   const bookOpen = bookPage !== null;
   const laptopOpen = pathname === "/laptop";
@@ -163,6 +169,9 @@ function Home() {
   }, []);
   return (
     <div className="desk-world">
+      {(pathname === "/" || bookOpen || laptopOpen || photo) && (
+        <LoadingScreen ready={sceneReady} />
+      )}
       {pathname === "/" && <h1 className="sr-only">Adam Woo’s workbench</h1>}
       {laptopOpen && <h1 className="sr-only">MacBook Pro</h1>}
       <div
@@ -174,13 +183,10 @@ function Home() {
             : "A tabbed notebook for work, art, and fashion, a floppy disk, and individual Polaroid photographs on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all desk objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are available through keyboard navigation."
         }
       >
-        <SceneBoundary>
-          <Suspense
-            fallback={
-              <p className="scene-message">Setting out the workbench…</p>
-            }
-          >
+        <SceneBoundary onError={finishLoading}>
+          <Suspense fallback={null}>
             <Workbench
+              onReady={finishLoading}
               reduced={systemReduced}
               bookOpen={bookOpen}
               laptopOpen={laptopOpen}

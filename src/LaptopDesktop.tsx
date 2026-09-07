@@ -1,10 +1,18 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createRoot } from "react-dom/client";
 import type { Root } from "react-dom/client";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { projects } from "./book-content";
 import geometry from "./laptop-geometry.json";
+import SecretArcade from "./SecretArcade";
 
 const SCREEN_TOP = geometry.depth / 2 - 0.19;
 
@@ -15,13 +23,15 @@ const currentProjects = projects.filter(
 const projectIcons: Record<string, string> = {
   triosens: "/textures/triosens-favicon.png",
   woostack: "/textures/woostack-favicon.svg",
+  secret: "/textures/secret-lock.svg",
 };
 const TILE_WIDTH = 1.15;
 const TILE_HEIGHT = 1.12;
 const ICON_SIZE = 0.65;
 const TEXTURE_SCALE = 400;
 
-type Project = (typeof currentProjects)[number];
+type Project = Pick<(typeof currentProjects)[number], "name" | "slug">;
+const secretItem: Project = { name: "Secret", slug: "secret" };
 
 function ProjectIcon({
   project,
@@ -30,6 +40,7 @@ function ProjectIcon({
   focused,
   hovered,
   onHover,
+  onOpen,
 }: {
   project: Project;
   index: number;
@@ -37,6 +48,7 @@ function ProjectIcon({
   focused: boolean;
   hovered: boolean;
   onHover: (slug: string | null) => void;
+  onOpen: () => void;
 }) {
   const { gl, invalidate } = useThree();
   const [favicon, setFavicon] = useState<HTMLImageElement | null>(null);
@@ -137,7 +149,7 @@ function ProjectIcon({
       onClick={(event) => {
         if (!active || event.button !== 0) return;
         event.stopPropagation();
-        window.open(project.url, "_blank", "noopener,noreferrer");
+        onOpen();
       }}
     >
       <planeGeometry args={[TILE_WIDTH, TILE_HEIGHT]} />
@@ -284,6 +296,12 @@ export default function LaptopDesktop({ active }: { active: boolean }) {
   const portalTarget = gl.domElement.closest(".desk-world");
   const root = useRef<Root | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
+  const [secretOpen, setSecretOpen] = useState(false);
+  const openSecret = useCallback(() => setSecretOpen(true), []);
+  const closeSecret = useCallback(() => {
+    setSecretOpen(false);
+    container.current?.querySelector<HTMLButtonElement>("button")?.focus();
+  }, []);
 
   useLayoutEffect(() => {
     if (!portalTarget) return;
@@ -343,9 +361,21 @@ export default function LaptopDesktop({ active }: { active: boolean }) {
             {project.name}
           </a>
         ))}
+        <button
+          type="button"
+          tabIndex={active ? 0 : -1}
+          onFocus={() => setFocused("secret")}
+          onBlur={() => setFocused(null)}
+          onClick={() => {
+            if (active) openSecret();
+          }}
+          aria-label="Open secret arcade"
+        >
+          Secret
+        </button>
       </nav>,
     );
-  }, [active, portalTarget]);
+  }, [active, portalTarget, openSecret]);
 
   useEffect(() => {
     if (!active || !hovered) return;
@@ -370,8 +400,21 @@ export default function LaptopDesktop({ active }: { active: boolean }) {
           focused={focused === project.slug}
           hovered={hovered === project.slug}
           onHover={setHovered}
+          onOpen={() =>
+            window.open(project.url, "_blank", "noopener,noreferrer")
+          }
         />
       ))}
+      <ProjectIcon
+        project={secretItem}
+        index={currentProjects.length}
+        active={active}
+        focused={focused === "secret"}
+        hovered={hovered === "secret"}
+        onHover={setHovered}
+        onOpen={openSecret}
+      />
+      {secretOpen && <SecretArcade onClose={closeSecret} active={active} />}
     </group>
   );
 }
