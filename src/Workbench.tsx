@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Canvas, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -8,7 +15,7 @@ import { useNavigate } from "react-router";
 import Notebook from "./Notebook";
 import LaptopCamera from "./LaptopCamera";
 import MatReset from "./MatReset";
-import LaptopDesktop from "./LaptopDesktop";
+import LaptopLid from "./LaptopLid";
 import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
 import PhysicsObject from "./PhysicsObject";
 import { bookSpreads, bookTabs } from "./book-content";
@@ -26,11 +33,14 @@ const modelNames = [
   "mat",
   "mat-mobile",
   "macbook",
+  "macbook-lid",
 ] as const;
 const modelPaths = modelNames.map((name) =>
   name === "notebook"
     ? "/models/notebook.glb?v=cloth-only"
-    : `/models/${name}.glb`,
+    : name.startsWith("macbook")
+      ? `/models/${name}.glb?v=flush-lid`
+      : `/models/${name}.glb`,
 );
 type ModelName = (typeof modelNames)[number];
 const draco = new DRACOLoader()
@@ -87,8 +97,11 @@ function Scene({
     [size.width, size.height],
   );
   const [cameraMoving, setCameraMoving] = useState(false);
+  const [lidMoving, setLidMoving] = useState(false);
   const navigate = useNavigate();
-  const deskDisabled = !deskActive || bookOpen || laptopOpen || cameraMoving;
+  const closeLaptop = useCallback(() => navigate("/"), [navigate]);
+  const deskDisabled =
+    !deskActive || bookOpen || laptopOpen || cameraMoving || lidMoving;
   useEffect(() => {
     onResetAvailableChange(!deskDisabled);
     return () => onResetAvailableChange(false);
@@ -114,6 +127,10 @@ function Scene({
             ? node.material
             : [node.material];
           for (const material of materials) {
+            // Unlit displays reproduce their source colors independently of
+            // the photographic exposure and tone mapping used for the desk.
+            if (material instanceof THREE.MeshBasicMaterial)
+              material.toneMapped = false;
             if (material instanceof THREE.MeshStandardMaterial) {
               material.envMapIntensity = 0.55;
               if (material.normalMap)
@@ -204,7 +221,7 @@ function Scene({
       updatePriority={-50}
       numSolverIterations={8}
       maxCcdSubsteps={4}
-      paused={deskDisabled}
+      paused={deskDisabled && !laptopOpen && !lidMoving && !cameraMoving}
     >
       <DeskLighting />
       <RigidBody type="fixed" colliders={false} name="Desk and room colliders">
@@ -232,11 +249,6 @@ function Scene({
         name="Laptop colliders"
       >
         <CuboidCollider args={[5.4, 3.75, 0.165]} position={[0, 0, 0.165]} />
-        <CuboidCollider
-          args={[5.4, 3.425, 0.08]}
-          position={[0, 4.377, 3.599]}
-          rotation={[(75 * Math.PI) / 180, 0, 0]}
-        />
       </RigidBody>
       <LaptopCamera
         active={laptopOpen}
@@ -272,7 +284,14 @@ function Scene({
           rotation={[Math.PI / 2, 0, 0]}
           dispose={null}
         />
-        <LaptopDesktop active={laptopOpen && !cameraMoving} />
+        <LaptopLid
+          model={models["macbook-lid"]}
+          active={laptopOpen}
+          reduced={reduced}
+          cameraMoving={cameraMoving}
+          onMovingChange={setLidMoving}
+          onClose={closeLaptop}
+        />
       </group>
       <mesh
         name="Tabletop slab"

@@ -1,6 +1,7 @@
 import { useCallback, useLayoutEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import geometry from "./laptop-geometry.json";
 
 export type LaptopCameraProps = {
   active: boolean;
@@ -13,12 +14,12 @@ export type LaptopCameraProps = {
 const REST_ZOOM = 65;
 const CAMERA_DISTANCE = 18;
 const TRANSITION_SECONDS = 0.8;
-const LID_WIDTH = 10.8;
-const LID_HEIGHT = 6.85;
+const LID_WIDTH = geometry.width;
+const LID_HEIGHT = geometry.depth;
 const HORIZONTAL_SAFE_PIXELS = 64;
 const VERTICAL_SAFE_PIXELS = 144;
 
-const SCREEN_CENTER = [0, 4.3, 3.62] as const;
+const SCREEN_CENTER = geometry.screenCenter;
 const SCREEN_NORMAL = [0, -0.965925826, 0.258819045] as const;
 const SCREEN_UP = [0, 0.258819045, 0.965925826] as const;
 
@@ -94,7 +95,7 @@ export default function LaptopCamera({
       );
       motion.targetQuaternion.setFromRotationMatrix(motion.lookAt);
 
-      // Pixel reserves keep the complete lid clear of the persistent return control.
+      // Leave breathing room around the lid for grabbing its top edge.
       const availableWidth = Math.max(1, size.width - HORIZONTAL_SAFE_PIXELS);
       const availableHeight = Math.max(1, size.height - VERTICAL_SAFE_PIXELS);
       motion.targetZoom = Math.min(

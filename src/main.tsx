@@ -187,7 +187,7 @@ function Home() {
         role="img"
         aria-label={
           laptopOpen
-            ? "A close-up of the MacBook Pro display with desktop shortcuts for current projects. Use Back to the desk or press Escape to return."
+            ? "A close-up of the MacBook Pro display with a macOS-style menu bar and desktop shortcuts for current projects. Drag the top edge of the lid downward to close it, or press Escape to return to the desk."
             : "A tabbed notebook for work, art, and fashion, a U.S.-style passport, a floppy disk, and individual Polaroid photographs on a cutting mat and butcher-block desk. Drag to rearrange, release quickly to throw, or click to discover. Objects collide and fall under gravity. The reset arrow in the mat’s upper-left grid cell restores all desk objects and stops their motion; a keyboard reset button follows this scene. A MacBook Pro peeks in at the top; click it to move to its screen. Equivalent destinations are available through keyboard navigation."
         }
       >
@@ -310,8 +310,8 @@ function Home() {
         </section>
       )}
       {laptopOpen && (
-        <button className="laptop-return" onClick={() => navigate("/")}>
-          Back to the desk
+        <button className="sr-only laptop-close" onClick={() => navigate("/")}>
+          Close laptop and return to the desk
         </button>
       )}
     </div>
@@ -347,11 +347,7 @@ function App() {
     window.scrollTo(0, 0);
     const heading = document.querySelector("h1");
     const focusTarget =
-      location.pathname === "/"
-        ? document.getElementById("main")
-        : location.pathname === "/laptop"
-          ? document.querySelector(".laptop-return")
-          : heading;
+      location.pathname === "/" ? document.getElementById("main") : heading;
     if (
       bookPageForPath(location.pathname) === null &&
       location.pathname !== "/about" &&

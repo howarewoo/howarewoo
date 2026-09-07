@@ -4,6 +4,9 @@ import type { Root } from "react-dom/client";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { projects } from "./book-content";
+import geometry from "./laptop-geometry.json";
+
+const SCREEN_TOP = geometry.depth / 2 - 0.19;
 
 const currentProjects = projects.filter(
   (project) => !project.type.startsWith("ARCHIVED"),
@@ -120,7 +123,7 @@ function ProjectIcon({
   return (
     <mesh
       name={`${project.name} project link`}
-      position={[4.25, 2.22 - index * 1.28, 0.025]}
+      position={[4.25, SCREEN_TOP - 1.015 - index * 1.28, 0.025]}
       onPointerOver={(event) => {
         if (!active) return;
         event.stopPropagation();
@@ -138,6 +141,132 @@ function ProjectIcon({
       }}
     >
       <planeGeometry args={[TILE_WIDTH, TILE_HEIGHT]} />
+      <meshBasicMaterial
+        map={texture}
+        transparent
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+}
+
+function DesktopMenuBar({ active }: { active: boolean }) {
+  const { gl, invalidate } = useThree();
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 2084;
+    canvas.height = 54;
+    const map = new THREE.CanvasTexture(canvas);
+    map.colorSpace = THREE.SRGBColorSpace;
+    map.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+    return map;
+  }, [gl]);
+
+  useEffect(() => {
+    const canvas = texture.image as HTMLCanvasElement;
+    const context = canvas.getContext("2d")!;
+    const date = new Intl.DateTimeFormat(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+    const time = new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    let timer: ReturnType<typeof setTimeout>;
+    const paint = () => {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.fillStyle = "rgba(235, 244, 247, 0.86)";
+      context.beginPath();
+      context.roundRect(0, 0, canvas.width, canvas.height, [26, 26, 0, 0]);
+      context.fill();
+      context.fillStyle = "#18232b";
+      context.strokeStyle = "#18232b";
+      context.lineWidth = 2.5;
+      context.lineCap = "round";
+      context.textBaseline = "middle";
+      context.save();
+      context.translate(27, 12);
+      context.scale(1.25, 1.25);
+      context.fill(
+        new Path2D(
+          "M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.06 7.31c1.35.07 2.29.78 3.08.84 1.18-.24 2.31-.97 3.57-.88 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.55 4.09ZM12.03 7.25C11.88 5.02 13.69 3.18 15.77 3c.28 2.58-2.34 4.5-3.74 4.25Z",
+        ),
+      );
+      context.restore();
+      let x = 82;
+      for (const label of [
+        "Finder",
+        "File",
+        "Edit",
+        "View",
+        "Go",
+        "Window",
+        "Help",
+      ]) {
+        context.font = `${label === "Finder" ? 600 : 400} 24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+        context.fillText(label, x, 28);
+        x += context.measureText(label).width + 32;
+      }
+      const now = new Date();
+      const clock = `${date.format(now)}   ${time.format(now)}`;
+      context.font =
+        '400 24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      const clockX = canvas.width - 26 - context.measureText(clock).width;
+      context.fillText(clock, clockX, 28);
+
+      // Decorative macOS status glyphs, not readings of the visitor's device.
+      const controlsX = clockX - 55;
+      for (const [y, knob] of [
+        [20, 8],
+        [35, 22],
+      ]) {
+        context.beginPath();
+        context.moveTo(controlsX, y);
+        context.lineTo(controlsX + 30, y);
+        context.stroke();
+        context.beginPath();
+        context.arc(controlsX + knob, y, 4, 0, Math.PI * 2);
+        context.fill();
+      }
+      const searchX = controlsX - 48;
+      context.beginPath();
+      context.arc(searchX, 24, 8, 0, Math.PI * 2);
+      context.moveTo(searchX + 6, 30);
+      context.lineTo(searchX + 13, 37);
+      context.stroke();
+      const wifiX = searchX - 53;
+      for (const radius of [11, 20]) {
+        context.beginPath();
+        context.arc(wifiX, 39, radius, -Math.PI * 0.76, -Math.PI * 0.24);
+        context.stroke();
+      }
+      context.beginPath();
+      context.arc(wifiX, 37, 2.5, 0, Math.PI * 2);
+      context.fill();
+      const batteryX = wifiX - 77;
+      context.beginPath();
+      context.roundRect(batteryX, 18, 36, 19, 4);
+      context.stroke();
+      context.fillRect(batteryX + 4, 22, 26, 11);
+      context.fillRect(batteryX + 39, 23, 3, 9);
+      texture.needsUpdate = true;
+      invalidate();
+      if (active) timer = setTimeout(paint, 60_000 - (Date.now() % 60_000));
+    };
+    paint();
+    return () => clearTimeout(timer);
+  }, [texture, active, invalidate]);
+  useEffect(() => () => texture.dispose(), [texture]);
+
+  return (
+    <mesh
+      name="macOS desktop menu bar"
+      position={[0, SCREEN_TOP - 0.135, 0.002]}
+    >
+      <planeGeometry args={[10.42, 0.27]} />
       <meshBasicMaterial
         map={texture}
         transparent
@@ -227,7 +356,11 @@ export default function LaptopDesktop({ active }: { active: boolean }) {
   }, [active, hovered]);
 
   return (
-    <group position={[0, 4.3, 3.62]} rotation={[(75 * Math.PI) / 180, 0, 0]}>
+    <group
+      position={geometry.screenCenter as [number, number, number]}
+      rotation={[(75 * Math.PI) / 180, 0, 0]}
+    >
+      <DesktopMenuBar active={active} />
       {currentProjects.map((project, index) => (
         <ProjectIcon
           key={project.slug}

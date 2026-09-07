@@ -4,6 +4,7 @@ The browser rotates each loaded model back into the desk's XY coordinate system.
 """
 from pathlib import Path
 import math
+import json
 import shutil
 import subprocess
 import random
@@ -14,6 +15,7 @@ from mathutils import Vector
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'public/models'
 SOURCE = ROOT / 'assets/blender'
+macbook_geometry = json.loads((ROOT / 'src/laptop-geometry.json').read_text())
 OUT.mkdir(parents=True, exist_ok=True)
 SOURCE.mkdir(parents=True, exist_ok=True)
 # Pillow stays outside Blender's bundled Python; uv uses the script's pinned dependency.
@@ -267,24 +269,21 @@ macbook_speaker.node_tree.links.new(
     speaker_texture.outputs['Color'], speaker_nodes.get('Principled BSDF').inputs['Base Color']
 )
 
-# User-selected wallpaper, center-cropped to the 3024:1964 display aspect ratio.
-# Source: https://cdn.wallpapersafari.com/48/89/xJPlWu.jpg
+# User-selected wallpaper, center-cropped to the visible display aspect ratio.
+# Source: https://r4.wallpaperflare.com/wallpaper/397/156/911/solarpunk-landscape-house-futurism-digital-art-hd-wallpaper-a4d94ab9f2f180d69975ce770ec22242.jpg
 wallpaper_image = bpy.data.images.load(str(SOURCE / 'textures/macbook-wallpaper.jpg'))
 wallpaper_image.colorspace_settings.name = 'sRGB'
 wallpaper_image.pack()
 macbook_screen = material('MacBook emissive wallpaper display', 'ffffff', .30, specular=.26)
 screen_nodes = macbook_screen.node_tree.nodes
-screen_shader = screen_nodes.get('Principled BSDF')
+# A color socket directly into Surface exports as KHR_materials_unlit.
+# The screen should reproduce sRGB pixels, not add reflected desk light.
+screen_nodes.clear()
+screen_output = screen_nodes.new('ShaderNodeOutputMaterial')
 screen_texture = screen_nodes.new('ShaderNodeTexImage')
 screen_texture.image = wallpaper_image
 screen_links = macbook_screen.node_tree.links
-screen_links.new(screen_texture.outputs['Color'], screen_shader.inputs['Base Color'])
-emission_input = screen_shader.inputs.get('Emission Color') or screen_shader.inputs.get('Emission')
-if emission_input:
-    screen_links.new(screen_texture.outputs['Color'], emission_input)
-emission_strength = screen_shader.inputs.get('Emission Strength')
-if emission_strength:
-    emission_strength.default_value = .85
+screen_links.new(screen_texture.outputs['Color'], screen_output.inputs['Surface'])
 
 active = []
 models = {}
@@ -493,7 +492,7 @@ finish('polaroid')
 # at Z=0 and front edge at Y=-3.75. The lid is 105 degrees open from closed.
 # Width/depth follows the 14-inch M4's 31.26 x 22.12 cm envelope.
 # Rounded outlines are explicit mesh loops, independent of the very thin Z edge.
-base = rounded_panel('MacBook aluminum unibody', 10.8, 7.5, .33, .24,
+base = rounded_panel('MacBook aluminum unibody', macbook_geometry['width'], macbook_geometry['depth'], .33, .24,
                      (0, 0, .165), macbook_aluminum, .045)
 notch = rounded_panel('Front finger recess tool', 1.60, .40, .16, .16,
                       (0, -3.78, .33), None, .035)
@@ -562,37 +561,45 @@ add_key_row(['fn','ctrl','opt','cmd','','cmd','opt','←','↑↓','→'],
             [1,1,1,1.25,5.5,1.25,1,1,1,1], .19)
 
 # Hinge axis and display pose conform to the shared camera contract.
-hinge = (0, 3.43, .36)
+hinge = macbook_geometry['hinge']
 cylinder('MacBook continuous recessed hinge', .10, 9.75, hinge, macbook_hinge, 40, (0, math.pi/2, 0))
+finish('macbook')
 lid_angle = math.radians(75)
 front = Vector((0, -.965925826, .258819045))
 up = Vector((0, .258819045, .965925826))
-screen_center = Vector((0, 4.30, 3.62))
-lid = rounded_panel('MacBook rounded aluminum display lid', 10.8, 6.85, .12, .23,
+# Registered from the closed pose: both shells center on Y=0, with the
+# display face at Z=.40 and the outer lid above it. Reference:
+# https://www.cgtrader.com/3d-models/electronics/computer/macbook-pro-m4
+screen_center = Vector(macbook_geometry['screenCenter'])
+lid_height = macbook_geometry['depth']
+lid = rounded_panel('MacBook rounded aluminum display lid', macbook_geometry['width'], lid_height, .12, .24,
                     screen_center-front*.080, macbook_aluminum, .018)
 lid.rotation_euler.x = lid_angle
-bezel = rounded_panel('MacBook thin continuous display surround', 10.68, 6.73, .024, .18,
+bezel = rounded_panel('MacBook thin continuous display surround', 10.68, lid_height-.12, .024, .18,
                       screen_center-front*.024, macbook_bezel, .004)
 bezel.rotation_euler.x = lid_angle
 # Half-inch lower bezel, converted using the 31.26 cm chassis width.
 # Match the top to the side inset while preserving the thicker lower bezel.
 bottom_bezel = 1.27 * 10.8 / 31.26
 top_bezel = (10.68 - 10.42) / 2
-display_height = 6.73 - top_bezel - bottom_bezel
+display_height = lid_height - .12 - top_bezel - bottom_bezel
 display_center = screen_center + up * ((bottom_bezel - top_bezel) / 2)
 display = rounded_panel('MacBook rounded 3024 by 1964 display', 10.42, display_height, .012, .13,
                         display_center-front*.006, macbook_screen, .001, square_bottom=True)
 surface_uv(display, 10.42, display_height, 1)
 display.rotation_euler.x = lid_angle
-notch_center = screen_center + up*3.225 + front*.005
-camera_notch = rounded_panel('MacBook small rounded camera notch', 1.05, .20, .012, .045,
+# The visible notch reaches the menu bar's bottom; its top stays in the bezel.
+notch_top = lid_height/2 - .1
+notch_bottom = lid_height/2 - .19 - .27
+notch_center = screen_center + up*((notch_top + notch_bottom)/2) + front*.005
+camera_notch = rounded_panel('MacBook small rounded camera notch', 1.05, notch_top-notch_bottom, .012, .045,
                             notch_center, macbook_bezel, .001)
 camera_notch.rotation_euler.x = lid_angle
 camera = cylinder(
-    'MacBook camera lens', .034, .012, notch_center + front * .021,
+    'MacBook camera lens', .034, .012, screen_center + up*(lid_height/2-.20) + front*.026,
     macbook_camera, 32, (math.radians(75), 0, 0)
 )
-finish('macbook')
+finish('macbook-lid')
 
 # Separate portrait artwork keeps square measurement cells on the mobile mat.
 for name, width, height in [('mat',15,10),('mat-mobile',8,12)]:
@@ -616,6 +623,7 @@ for name, width, height in [('mat',15,10),('mat-mobile',8,12)]:
 placements = {'notebook':((-3.3,.65,.025),-.13),'notebook-cover':((-3.3,.65,.025),-.13),'passport':((2,2.4,.025),.09),'passport-cover':((2,2.4,.025),.09),'disk':((.7,-1.9,.025),.12),'polaroid':((4.7,-1.75,.025),-.16),'mat':((0,0,0),-.015),'macbook':((0,8.65,-.09),0)}
 for name, (pos, angle) in placements.items():
     models[name].location = pos; models[name].rotation_euler.z = angle
+models['macbook-lid'].location = models['macbook'].location
 models['passport'].scale = (.7, .7, .7)
 models['passport-cover'].scale = (.7, .7, .7)
 models['mat-mobile'].hide_render = True; models['mat-mobile'].hide_viewport = True

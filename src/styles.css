@@ -87,22 +87,16 @@ h1:focus {
   background: var(--paper);
   box-shadow: 3px 9px 20px #38271140;
 }
-.laptop-return {
-  border: 0;
-  color: #3d3526;
-  background: #e9d5aee8;
-  cursor: pointer;
-  box-shadow: 1px 3px 5px #38271130;
-  position: absolute;
-  bottom: 20px;
-  left: 24px;
-  z-index: 2;
-  min-height: 44px;
+.laptop-close:focus-visible {
+  clip: auto;
+  width: auto;
+  height: auto;
+  margin: 0;
+  bottom: 16px;
+  left: 16px;
   padding: 12px 16px;
-  font-size: 13px;
-  transform: rotate(-2deg);
-}
-.laptop-return:hover {
+  z-index: 3;
+  color: #3d3526;
   background: #f5e6c6;
 }
 .book-reading .skip-link {
@@ -213,9 +207,6 @@ html {
 @media (max-width: 650px) {
   .desk-world {
     background-size: auto 100%;
-  }
-  .laptop-return {
-    font-size: 10px;
   }
   .paper-page {
     margin: 5svh 22px 90px;
