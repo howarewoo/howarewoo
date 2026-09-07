@@ -1,0 +1,24 @@
+{
+  "art": [],
+  "fashion": [],
+  "photos": [
+    {
+      "id": "01",
+      "image": null,
+      "caption": "Developing",
+      "alt": "A photograph still developing."
+    },
+    {
+      "id": "02",
+      "image": null,
+      "caption": "Developing",
+      "alt": "A photograph still developing."
+    },
+    {
+      "id": "03",
+      "image": null,
+      "caption": "Developing",
+      "alt": "A photograph still developing."
+    }
+  ]
+}

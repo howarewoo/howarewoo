@@ -9,6 +9,8 @@
 
 # production
 /build
+/dist/
+/.impeccable/
 
 # misc
 .DS_Store
