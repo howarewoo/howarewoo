@@ -1,18 +1,18 @@
 # Hi, I'm Adam 👋
 
-Independent product developer. Former senior engineer at Meta Superintelligence Lab and Instagram.
+I'm an independent product developer. I was previously a senior engineer at Meta Superintelligence Lab and Instagram.
 
-## 🚀 Current Projects
+## Current projects
 
-- [**woostack**](https://woostack-docs.adam-nathaniel-woo.workers.dev/): an installable collection of skills that encode my software-development process for AI agents — bootstrap, build, review, iterate — across new and existing codebases. Also runs PR review swarms in CI as a GitHub Action.
-- [**pi-subagents**](https://www.npmjs.com/package/@howarewoo/pi-subagents): a Pi-native subagent extension.
-- [**pi-btw**](https://www.npmjs.com/package/@howarewoo/pi-btw): a Pi extension for concurrent, read-only side conversations with saved thread history.
+- [woostack](https://woostack-docs.adam-nathaniel-woo.workers.dev/): a guide to building and publishing software with AI tools as an independent developer, with skills, tools, tech stack recommendations, and agent automations.
+- [pi-subagents](https://www.npmjs.com/package/@howarewoo/pi-subagents): a native subagent extension for Pi.
+- [pi-btw](https://www.npmjs.com/package/@howarewoo/pi-btw): a Pi extension for read-only side conversations that run concurrently and save their thread history.
 
-## 🗃️ Past Projects
+## Past projects
 
-- [**TrioSens**](https://triosens.io): AI brand-visibility analytics across ChatGPT, Gemini, Claude, and other AI platforms.
-- [**OMP Remote**](https://github.com/howarewoo/omp-remote): an archived, phone-first PWA for supervising multiple Oh My Pi coding sessions from a private Tailnet.
+- [TrioSens](https://triosens.io): tracks brand visibility across ChatGPT, Gemini, Claude, and other AI platforms.
+- [OMP Remote](https://github.com/howarewoo/omp-remote): a phone-first PWA for supervising multiple Oh My Pi coding sessions from a private Tailnet. Now archived.
 
-## Connect with me:
+## Connect
 
 [LinkedIn](https://linkedin.com/in/adam-woo-11733ba4/)
