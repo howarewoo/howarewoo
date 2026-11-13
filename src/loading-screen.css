@@ -1,0 +1,89 @@
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100svh;
+  padding: clamp(24px, 4vw, 64px);
+  color: #f5efdf;
+  background: #224c3e;
+  transition: opacity 480ms cubic-bezier(0.16, 1, 0.3, 1), visibility 480ms;
+}
+.loading-screen--ready {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.loading-screen__header,
+.loading-screen__footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.loading-screen__edition,
+.loading-screen__footer p {
+  color: #c1cdbb;
+}
+.loading-screen__center {
+  width: min(100%, 680px);
+  margin: 64px auto;
+}
+.loading-screen__name {
+  margin: 0 0 36px;
+  font-size: clamp(54px, 9vw, 96px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+.loading-screen__name > span {
+  color: #e6b49a;
+}
+.loading-screen__ruler {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  height: 40px;
+  border-top: 1px solid #b0bda5;
+}
+.loading-screen__ruler > span {
+  width: 1px;
+  background: #b0bda5;
+}
+.loading-screen__ruler > i {
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  background: #e6b49a;
+  animation: ruler-travel 2400ms cubic-bezier(0.65, 0, 0.35, 1) infinite alternate;
+}
+.loading-screen__status {
+  margin: 24px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.loading-screen__footer p {
+  margin: 0;
+}
+@keyframes ruler-travel {
+  to { left: calc(100% - 9px); }
+}
+@media (max-width: 650px) {
+  .loading-screen__edition { display: none; }
+  .loading-screen__footer { flex-direction: column; gap: 12px; }
+  .loading-screen__name { margin-bottom: 28px; }
+}
+@media (max-height: 500px) {
+  .loading-screen { overflow-y: auto; }
+  .loading-screen__center { margin-block: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen { transition: none; }
+  .loading-screen__ruler > i { animation: none; left: 50%; }
+}
